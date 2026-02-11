@@ -21,4 +21,9 @@ public class FirstController {
     public List<MyFirst> getUserName(@RequestParam int id) {
         return firstService.getAll(id);
     }
+
+    @GetMapping("/v1/api/users")
+    public List<MyFirst> getAllUsers(@RequestParam int id) {
+        return firstService.getAll(id);
+    }
 }
