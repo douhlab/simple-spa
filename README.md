@@ -15,3 +15,7 @@ This is a simple java sprinboot project
 - Maven
 - Lombok
 - Sql server
+
+
+#### Endpoints
+- `GET /api/v1/first` - get users
