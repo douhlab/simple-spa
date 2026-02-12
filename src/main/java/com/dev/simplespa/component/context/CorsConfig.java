@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*")
+                        .allowedOrigins("https://brave-sky-0fd134503.6.azurestaticapps.net")
                         .allowedMethods("*");
             }
         };

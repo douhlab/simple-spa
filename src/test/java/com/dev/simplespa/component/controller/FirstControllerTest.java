@@ -24,7 +24,7 @@ public class FirstControllerTest {
     private FirstService firstService;
 
     @Test
-    public void testGetFirst() throws Exception {
+    void testGetFirst() throws Exception {
         // Given
         List<MyFirst> expectedList = List.of(MyFirst.builder().id(1).description("Test Name").build());
         Mockito.when(firstService.getAll(1)).thenReturn(expectedList);
@@ -37,7 +37,7 @@ public class FirstControllerTest {
     }
 
     @Test
-    public void testGetUsers() throws Exception {
+    void testGetUsers() throws Exception {
         // Given
         List<MyFirst> expectedList = List.of(MyFirst.builder().id(1).description("Test Name").build());
         Mockito.when(firstService.getAll(1)).thenReturn(expectedList);
