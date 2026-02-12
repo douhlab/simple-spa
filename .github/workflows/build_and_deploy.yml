@@ -31,8 +31,11 @@ jobs:
 
       - name: SonarCloud Scan
         run: mvn sonar:sonar \
-           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-           -Dsonar.qualitygate.wait=true
+          -Dsonar.projectKey=douhlab_simple-spa \
+          -Dsonar.organization=douhlab \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.qualitygate.wait=true
 
       # ------------------------
       # Azure Login
