@@ -24,7 +24,7 @@ public class FirstControllerTest {
     private FirstService firstService;
 
     @Test
-    public void testGetUserName() throws Exception {
+    public void testGetFirst() throws Exception {
         // Given
         List<MyFirst> expectedList = List.of(MyFirst.builder().id(1).description("Test Name").build());
         Mockito.when(firstService.getAll(1)).thenReturn(expectedList);
@@ -34,6 +34,19 @@ public class FirstControllerTest {
                .andExpect(status().isOk())
                .andExpect(jsonPath("$[0].id").value(1))
                .andExpect(jsonPath("$[0].description").value("Test Name"));
+    }
+
+    @Test
+    public void testGetUsers() throws Exception {
+        // Given
+        List<MyFirst> expectedList = List.of(MyFirst.builder().id(1).description("Test Name").build());
+        Mockito.when(firstService.getAll(1)).thenReturn(expectedList);
+
+        // When & Then
+        mockMvc.perform(get("/v1/api/users").param("id", "1"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(1))
+            .andExpect(jsonPath("$[0].description").value("Test Name"));
     }
 
 }
