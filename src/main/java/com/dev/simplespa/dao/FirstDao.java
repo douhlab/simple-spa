@@ -17,6 +17,26 @@ public class FirstDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
+	public Optional<MyFirst> findById(int id) {
+		String sql = "SELECT ID, DESCRIPTION, CREATION_DATE, CREATED_BY FROM MY_FIRST WHERE ID = ?";
+
+		var x = jdbcTemplate.queryForObject(
+			sql,
+			new Object[]{id},
+			(rs, rowNum) ->
+				MyFirst.builder()
+					.id(rs.getInt("ID"))
+					.description(rs.getString("DESCRIPTION"))
+					.creationDate(Optional.ofNullable(rs.getTimestamp("CREATION_DATE"))
+						.map(Timestamp::toLocalDateTime)
+						.orElse(null))
+					.createdBy(rs.getString("CREATED_BY"))
+					.build()
+		);
+
+		return Optional.ofNullable(x);
+	}
+
 	public List<MyFirst> findAll() {
 		String sql = "SELECT ID, DESCRIPTION, CREATION_DATE, CREATED_BY FROM MY_FIRST";
 

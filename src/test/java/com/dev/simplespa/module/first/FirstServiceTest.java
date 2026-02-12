@@ -20,6 +20,21 @@ public class FirstServiceTest {
     @InjectMocks
     FirstService firstService;
 
+    @Test
+    public void getByIdTest() {
+        // given
+        when(firstDao.findById(1)).thenReturn(
+            java.util.Optional.of(MyFirst.builder().id(1).description("test").build())
+        );
+
+        // when
+        var actual = firstService.getById(1);
+
+        // then
+        assertThat(actual).isPresent();
+        assertThat(actual.get().getId()).isEqualTo(1);
+        assertThat(actual.get().getDescription()).isEqualTo("test");
+    }
 
     @Test
     public void getAllTest() {

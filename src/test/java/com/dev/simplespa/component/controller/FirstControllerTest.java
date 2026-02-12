@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.dev.simplespa.model.domain.MyFirst;
 import com.dev.simplespa.module.first.FirstService;
@@ -37,16 +38,16 @@ public class FirstControllerTest {
     }
 
     @Test
-    void testGetUsers() throws Exception {
+    void testGetById() throws Exception {
         // Given
-        List<MyFirst> expectedList = List.of(MyFirst.builder().id(1).description("Test Name").build());
-        Mockito.when(firstService.getAll(1)).thenReturn(expectedList);
+        var expected = MyFirst.builder().id(1).description("Test Name").build();
+        Mockito.when(firstService.getById(1)).thenReturn(Optional.of(expected));
 
         // When & Then
         mockMvc.perform(get("/v1/api/users").param("id", "1"))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$[0].id").value(1))
-            .andExpect(jsonPath("$[0].description").value("Test Name"));
+            .andExpect(jsonPath("id").value(1))
+            .andExpect(jsonPath("description").value("Test Name"));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.dev.simplespa.module.first;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.dev.simplespa.dao.FirstDao;
 import com.dev.simplespa.model.domain.MyFirst;
@@ -13,6 +14,10 @@ public class FirstService {
 
     public FirstService(FirstDao firstDao) {
         this.firstDao = firstDao;
+    }
+
+    public Optional<MyFirst> getById(int id) {
+        return firstDao.findById(id);
     }
 
     public List<MyFirst> getAll(int id) {

@@ -1,6 +1,8 @@
 package com.dev.simplespa.component.controller;
 
 import java.util.List;
+import java.util.Optional;
+
 
 import com.dev.simplespa.model.domain.MyFirst;
 import com.dev.simplespa.module.first.FirstService;
@@ -23,7 +25,7 @@ public class FirstController {
     }
 
     @GetMapping("/v1/api/users")
-    public List<MyFirst> getAllUsers(@RequestParam int id) {
-        return firstService.getAll(id);
+    public Optional<MyFirst> getById(@RequestParam int id) {
+        return firstService.getById(id);
     }
 }
