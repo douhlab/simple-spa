@@ -30,9 +30,7 @@
         <compiler.source.version>21</compiler.source.version>
         <java.version>21</java.version>
 
-        <sonar.projectKey>douhlab_simple-spa</sonar.projectKey>
         <sonar.organization>douhlab</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
 
     </properties>
     <dependencies>
