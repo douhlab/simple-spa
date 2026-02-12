@@ -21,7 +21,7 @@ public class FirstServiceTest {
     FirstService firstService;
 
     @Test
-    public void getByIdTest() {
+    void getByIdTest() {
         // given
         when(firstDao.findById(1)).thenReturn(
             java.util.Optional.of(MyFirst.builder().id(1).description("test").build())
@@ -37,7 +37,7 @@ public class FirstServiceTest {
     }
 
     @Test
-    public void getAllTest() {
+    void getAllTest() {
         // given
         when(firstDao.findAll()).thenReturn(List.of(
             MyFirst.builder().id(1).description("test1").build(),
