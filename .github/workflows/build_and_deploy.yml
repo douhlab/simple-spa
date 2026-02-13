@@ -30,7 +30,13 @@ jobs:
         run: mvn clean verify
 
       - name: SonarCloud Scan
-        run: mvn sonar:sonar -Dsonar.projectKey=douhlab_simple-spa -Dsonar.organization=douhlab -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SONAR_TOKEN }} -Dsonar.qualitygate.wait=true
+        run: mvn sonar:sonar \
+          -Dsonar.projectKey=douhlab_simple-spa \
+          -Dsonar.organization=douhlab \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+          -Dsonar.qualitygate.wait=true
 
       # ------------------------
       # Azure Login
