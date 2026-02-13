@@ -18,6 +18,6 @@ This is a simple java sprinboot project
 
 
 #### Endpoints
-- `GET /api/v1/first` - get users
+- `GET /api/v1/users/all` - get all users
 - `GET /api/v1/users` - get users
 

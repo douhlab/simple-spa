@@ -2,18 +2,30 @@ package com.dev.simplespa.model.domain;
 
 import java.time.LocalDateTime;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotEmpty;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class MyFirst {
+@ToString
+@EqualsAndHashCode
+public class User {
     private int id;
+
+    @NotEmpty
     private String description;
+
+    @NotEmpty
+    @Email
     private String createdBy;
     private LocalDateTime creationDate;
 
