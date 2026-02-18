@@ -41,7 +41,7 @@ class UserDaoTest {
 	void create_shouldInsertAndReturnUserWithGeneratedId() {
 		// Given
 		User input = User.builder()
-			.description("Test user")
+			.name("Test user")
 			.createdBy("lab")
 			.build();
 
@@ -64,12 +64,12 @@ class UserDaoTest {
 
 		// Then
 		assertThat(result.getId()).isEqualTo(42);
-		assertThat(result.getDescription()).isEqualTo("Test user");
+		assertThat(result.getName()).isEqualTo("Test user");
 		assertThat(result.getCreatedBy()).isEqualTo("lab");
 		assertThat(result.getCreationDate()).isNotNull();
 
 		verify(jdbcTemplate).update(
-			contains("INSERT INTO MY_FIRST"),
+			contains("INSERT INTO USERS"),
 			any(SqlParameterSource.class),
 			any(KeyHolder.class)
 		);
@@ -79,7 +79,7 @@ class UserDaoTest {
 	void create_shouldThrowWhenNoGeneratedKeyReturned() {
 
 		User input = User.builder()
-			.description("Test user")
+			.name("Test user")
 			.createdBy("lab")
 			.build();
 
@@ -100,7 +100,7 @@ class UserDaoTest {
 	void findByIdShouldReturnOptionalWhenFound() {
 		User expected = User.builder()
 			.id(1)
-			.description("desc")
+			.name("name")
 			.creationDate(LocalDateTime.now())
 			.createdBy("me")
 			.build();
@@ -133,7 +133,7 @@ class UserDaoTest {
 	void userRowMapperShouldMapResultSet() throws Exception {
 		ResultSet rs = mock(ResultSet.class);
 		when(rs.getInt("ID")).thenReturn(42);
-		when(rs.getString("DESCRIPTION")).thenReturn("desc");
+		when(rs.getString("NAME")).thenReturn("name");
 		when(rs.getString("CREATED_BY")).thenReturn("me");
 		when(rs.getTimestamp("CREATION_DATE")).thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, 2, 12, 12, 0)));
 
@@ -141,7 +141,7 @@ class UserDaoTest {
 		User result = mapper.mapRow(rs, 0);
 
 		assertThat(result.getId()).isEqualTo(42);
-		assertThat(result.getDescription()).isEqualTo("desc");
+		assertThat(result.getName()).isEqualTo("name");
 		assertThat(result.getCreatedBy()).isEqualTo("me");
 		assertThat(result.getCreationDate()).isEqualTo(LocalDateTime.of(2026, 2, 12, 12, 0));
 	}

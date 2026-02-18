@@ -22,7 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(EmployerController.class)
-public class EmployerControllerTest {
+class EmployerControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
@@ -48,7 +48,7 @@ public class EmployerControllerTest {
 		Mockito.when(employerService.create(Mockito.any(Employer.class))).thenReturn(expectedEmployer);
 
 		// When & Then
-		var result = mockMvc.perform(post("/v1/api/employers").contentType(MediaType.APPLICATION_JSON)
+		var result = mockMvc.perform(post("/simple-spa/v1/api/employers").contentType(MediaType.APPLICATION_JSON)
 			.content(employerToCreate));
 
 		result.andExpect(status().isCreated());
@@ -63,7 +63,7 @@ public class EmployerControllerTest {
 		Mockito.when(employerService.findAll()).thenReturn(expectedList);
 
 		// When & Then
-		mockMvc.perform(get("/v1/api/employers/all").param("id", "1"))
+		mockMvc.perform(get("/simple-spa/v1/api/employers/all").param("id", "1"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$[0].id").value(1))
 			.andExpect(jsonPath("$[0].name").value("Test Name"));
@@ -76,7 +76,7 @@ public class EmployerControllerTest {
 		Mockito.when(employerService.findById(1)).thenReturn(Optional.of(expected));
 
 		// When & Then
-		mockMvc.perform(get("/v1/api/employers").param("id", "1"))
+		mockMvc.perform(get("/simple-spa/v1/api/employers").param("id", "1"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("id").value(1))
 			.andExpect(jsonPath("name").value("Test Name"));

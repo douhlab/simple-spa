@@ -18,11 +18,11 @@ public class UserService {
         return userDao.create(user);
     }
 
-    public List<User> getAll() {
+    public List<User> findAll() {
         return userDao.findAll();
     }
 
-    public Optional<User> getById(int id) {
+    public Optional<User> findById(int id) {
         return userDao.findById(id);
     }
 

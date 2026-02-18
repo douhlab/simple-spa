@@ -28,11 +28,11 @@ public class UserDao {
 		var now = LocalDateTime.now();
 
 		SqlParameterSource parameters = new MapSqlParameterSource()
-			.addValue("description", user.getDescription())
+			.addValue("name", user.getName())
 			.addValue("creationDate", now)
 			.addValue("createdBy", user.getCreatedBy());
 
-		String sql = "INSERT INTO MY_FIRST (DESCRIPTION, CREATION_DATE, CREATED_BY) VALUES (:description, :creationDate, :createdBy)";
+		String sql = "INSERT INTO USERS (NAME, CREATION_DATE, CREATED_BY) VALUES (:name, :creationDate, :createdBy)";
 
 		jdbcTemplate.update(sql, parameters, keyHolder);
 
@@ -45,7 +45,7 @@ public class UserDao {
 
 	public Optional<User> findById(int id) {
 		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
-		String sql = "SELECT ID, DESCRIPTION, CREATION_DATE, CREATED_BY FROM MY_FIRST WHERE ID = :id";
+		String sql = "SELECT ID, NAME, CREATION_DATE, CREATED_BY FROM USERS WHERE ID = :id";
 
 		return jdbcTemplate.query(sql, parameters, new UserRowMapper()).stream().findFirst();
 	}
@@ -55,7 +55,7 @@ public class UserDao {
 		public User mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
 			return User.builder()
 				.id(rs.getInt("ID"))
-				.description(rs.getString("DESCRIPTION"))
+				.name(rs.getString("NAME"))
 				.creationDate(Optional.ofNullable(rs.getTimestamp("CREATION_DATE"))
 					.map(Timestamp::toLocalDateTime)
 					.orElse(null))
@@ -65,14 +65,14 @@ public class UserDao {
 	}
 
 	public List<User> findAll() {
-		String sql = "SELECT ID, DESCRIPTION, CREATION_DATE, CREATED_BY FROM MY_FIRST";
+		String sql = "SELECT ID, NAME, CREATION_DATE, CREATED_BY FROM USERS";
 
 		return jdbcTemplate.query(
 			sql,
 			(rs, rowNum) ->
 				User.builder()
 					.id(rs.getInt("ID"))
-					.description(rs.getString("DESCRIPTION"))
+					.name(rs.getString("NAME"))
 					.creationDate(Optional.ofNullable(rs.getTimestamp("CREATION_DATE"))
 						.map(Timestamp::toLocalDateTime)
 						.orElse(null))

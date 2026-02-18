@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
     @Mock
     private UserDao userDao;
 
@@ -23,44 +23,44 @@ public class UserServiceTest {
     @Test
     void createTest() {
         // given
-        User user = User.builder().description("test").build();
-        when(userDao.create(user)).thenReturn(User.builder().id(1).description("test").build());
+        User user = User.builder().name("test").build();
+        when(userDao.create(user)).thenReturn(User.builder().id(1).name("test").build());
 
         // when
         var actual = userService.create(user);
 
         // then
         assertThat(actual.getId()).isEqualTo(1);
-        assertThat(actual.getDescription()).isEqualTo("test");
+        assertThat(actual.getName()).isEqualTo("test");
     }
 
     @Test
-    void getByIdTest() {
+    void findByIdTest() {
         // given
         when(userDao.findById(1)).thenReturn(
-            java.util.Optional.of(User.builder().id(1).description("test").build())
+            java.util.Optional.of(User.builder().id(1).name("test").build())
         );
 
         // when
-        var actual = userService.getById(1);
+        var actual = userService.findById(1);
 
         // then
         assertThat(actual).isPresent();
         assertThat(actual.get().getId()).isEqualTo(1);
-        assertThat(actual.get().getDescription()).isEqualTo("test");
+        assertThat(actual.get().getName()).isEqualTo("test");
     }
 
     @Test
-    void getAllTest() {
+    void findAllTest() {
         // given
         when(userDao.findAll()).thenReturn(List.of(
-            User.builder().id(1).description("test1").build(),
-            User.builder().id(2).description("test2").build(),
-            User.builder().id(3).description("test3").build()
+            User.builder().id(1).name("test1").build(),
+            User.builder().id(2).name("test2").build(),
+            User.builder().id(3).name("test3").build()
         ));
 
         // when
-        List<User> actual = userService.getAll();
+        List<User> actual = userService.findAll();
 
         // then
         assertThat(actual).hasSize(3);

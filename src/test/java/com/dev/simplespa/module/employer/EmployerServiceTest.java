@@ -13,7 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
 @ExtendWith(org.mockito.junit.jupiter.MockitoExtension.class)
-public class EmployerServiceTest {
+class EmployerServiceTest {
     @Mock
     private EmployerDao employerDao;
 
@@ -35,7 +35,7 @@ public class EmployerServiceTest {
     }
 
     @Test
-    void getByIdTest() {
+    void findByIdTest() {
         // given
         when(employerDao.findById(1)).thenReturn(
             java.util.Optional.of(Employer.builder().id(1).name("test").build())
@@ -51,7 +51,7 @@ public class EmployerServiceTest {
     }
 
     @Test
-    void getAllTest() {
+    void findAllTest() {
         // given
         when(employerDao.findAll()).thenReturn(List.of(
             Employer.builder().id(1).name("test1").build(),

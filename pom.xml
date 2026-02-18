@@ -32,6 +32,8 @@
 
         <sonar.organization>douhlab</sonar.organization>
 
+        <mailgun.version>2.2.1</mailgun.version>
+
     </properties>
     <dependencies>
         <!-- Spring Boot Starter for Web -->
@@ -79,6 +81,12 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.mailgun</groupId>
+            <artifactId>mailgun-java</artifactId>
+            <version>${mailgun.version}</version>
         </dependency>
 
         <!-- Spring Boot Starter for Testing -->

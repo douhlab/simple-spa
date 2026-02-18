@@ -22,7 +22,7 @@ public class User {
     private int id;
 
     @NotEmpty
-    private String description;
+    private String name;
 
     @NotEmpty
     @Email
