@@ -21,7 +21,12 @@ public class SecurityConfig {
 			.and()
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/", "/version", "/actuator/**", "/simple-spa/login")
+				.requestMatchers("/",
+					"/version",
+					"/actuator/**",
+					"/swagger-ui/**",
+					"/v3/api-docs/**",
+					"/simple-spa/login")
 				.permitAll() // allow login endpoint
 				.anyRequest()
 				.authenticated() // all other endpoints require authentication
