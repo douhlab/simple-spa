@@ -23,16 +23,24 @@ public class UserDao {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 
-	public User create(User user) {
+	public User register(User user) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
 		var now = LocalDateTime.now();
+		var createdBy = "user";
 
 		SqlParameterSource parameters = new MapSqlParameterSource()
+			.addValue("username", user.getUsername())
+			.addValue("email", user.getEmail())
+			.addValue("passwordHash", user.getPasswordHash())
 			.addValue("name", user.getName())
+			.addValue("lastName", user.getLastName())
+			.addValue("phoneNumber", user.getPhoneNumber())
 			.addValue("creationDate", now)
-			.addValue("createdBy", user.getCreatedBy());
+			.addValue("createdBy", createdBy);
 
-		String sql = "INSERT INTO USERS (NAME, CREATION_DATE, CREATED_BY) VALUES (:name, :creationDate, :createdBy)";
+		String sql =
+			"INSERT INTO USERS (USERNAME, EMAIL, PASSWORD_HASH, NAME, LAST_NAME, PHONE_NUMBER, CREATION_DATE, CREATED_BY) "
+				+ "VALUES (:username, :email, :passwordHash, :name, :lastName, :phoneNumber, :creationDate, :createdBy)";
 
 		jdbcTemplate.update(sql, parameters, keyHolder);
 
@@ -43,9 +51,17 @@ public class UserDao {
 		return user.toBuilder().id(id).creationDate(now).build();
 	}
 
+	public List<User> findAll() {
+		String sql = "SELECT ID, USERNAME, EMAIL, PASSWORD_HASH, NAME, LAST_NAME, PHONE_NUMBER, CREATION_DATE, "
+			+ "CREATED_BY FROM USERS";
+
+		return jdbcTemplate.query(sql, new UserRowMapper());
+	}
+
 	public Optional<User> findById(int id) {
 		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
-		String sql = "SELECT ID, NAME, CREATION_DATE, CREATED_BY FROM USERS WHERE ID = :id";
+		String sql = "SELECT ID, USERNAME, EMAIL, PASSWORD_HASH, NAME, LAST_NAME, PHONE_NUMBER, CREATION_DATE, "
+			+ "CREATED_BY FROM USERS WHERE ID = :id";
 
 		return jdbcTemplate.query(sql, parameters, new UserRowMapper()).stream().findFirst();
 	}
@@ -55,30 +71,17 @@ public class UserDao {
 		public User mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
 			return User.builder()
 				.id(rs.getInt("ID"))
+				.username(rs.getString("USERNAME"))
+				.email(rs.getString("EMAIL"))
+				.passwordHash(rs.getString("PASSWORD_HASH"))
 				.name(rs.getString("NAME"))
+				.lastName(rs.getString("LAST_NAME"))
+				.phoneNumber(rs.getString("PHONE_NUMBER"))
 				.creationDate(Optional.ofNullable(rs.getTimestamp("CREATION_DATE"))
 					.map(Timestamp::toLocalDateTime)
 					.orElse(null))
 				.createdBy(rs.getString("CREATED_BY"))
 				.build();
 		}
-	}
-
-	public List<User> findAll() {
-		String sql = "SELECT ID, NAME, CREATION_DATE, CREATED_BY FROM USERS";
-
-		return jdbcTemplate.query(
-			sql,
-			(rs, rowNum) ->
-				User.builder()
-					.id(rs.getInt("ID"))
-					.name(rs.getString("NAME"))
-					.creationDate(Optional.ofNullable(rs.getTimestamp("CREATION_DATE"))
-						.map(Timestamp::toLocalDateTime)
-						.orElse(null))
-					.createdBy(rs.getString("CREATED_BY"))
-					.build()
-		);
-
 	}
 }
