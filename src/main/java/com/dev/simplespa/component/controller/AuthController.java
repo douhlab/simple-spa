@@ -28,19 +28,19 @@ public class AuthController {
 	@PostMapping("/login")
 	public Map<String, String> login(@RequestBody Map<String, String> body) {
 
-        boolean bypassReCAPTCHA = Optional.ofNullable(body.get("bypassReCAPTCHA")).map(Boolean::parseBoolean).orElse(false);
-        if(!bypassReCAPTCHA) {
-            // 1️⃣ Verify reCAPTCHA
-            boolean captchaOk = recaptchaService.verify(body.get("captchaToken"));
-            if (!captchaOk) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "reCAPTCHA failed");
-            }
-        }
+		boolean bypassReCAPTCHA =
+			Optional.ofNullable(body.get("bypassReCAPTCHA")).map(Boolean::parseBoolean).orElse(false);
+		if (!bypassReCAPTCHA) {
+			// 1️⃣ Verify reCAPTCHA
+			boolean captchaOk = recaptchaService.verify(body.get("captchaToken"));
+			if (!captchaOk) {
+				throw new ResponseStatusException(HttpStatus.FORBIDDEN, "reCAPTCHA failed");
+			}
+		}
 
 		String username = body.get("username");
 		String rawPassword = body.get("password");
 
-		//        if("labuser".equals(username) && "labpass".equals(password)) {
 		if (userService.isAuthentic(username, rawPassword)) {
 			String token = jwtUtil.generateToken(username);
 			return Map.of("token", token);
@@ -49,13 +49,22 @@ public class AuthController {
 		}
 	}
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegistrationRequest request) {
-        if(userService.findByUsername(request.getUsername()).isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
-        }
-        userService.register(request);
+	@PostMapping("/register")
+	public ResponseEntity<Map<String, String>> register(@RequestBody RegistrationRequest request) {
+		boolean bypassReCAPTCHA = Optional.ofNullable(request.getBypassReCAPTCHA()).orElse(false);
+		if (!bypassReCAPTCHA) {
+			// 1️⃣ Verify reCAPTCHA
+			boolean captchaOk = recaptchaService.verify(request.getCaptchaToken());
+			if (!captchaOk) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", "reCAPTCHA failed"));
+			}
+		}
 
-        return ResponseEntity.ok("User created");
-    }
+		if (userService.findByUsername(request.getUsername()).isPresent()) {
+			return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("message", "Username already exists"));
+		}
+		userService.register(request);
+
+		return ResponseEntity.ok(Map.of("message", "User created"));
+	}
 }

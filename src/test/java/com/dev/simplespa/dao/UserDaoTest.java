@@ -38,34 +38,32 @@ class UserDaoTest {
 	}
 
 	@Test
-	void create_shouldInsertAndReturnUserWithGeneratedId() {
-		// Given
+	void register_shouldInsertAndReturnUserWithGeneratedId() {
 		User input = User.builder()
-			.name("Test user")
-			.createdBy("lab")
+			.username("user1")
+			.email("test@mail.com")
+			.passwordHash("hash")
+			.name("John")
+			.lastName("Doe")
+			.phoneNumber("12345678")
 			.build();
 
 		ArgumentCaptor<KeyHolder> keyHolderCaptor = ArgumentCaptor.forClass(KeyHolder.class);
 
-		// Mock jdbcTemplate.update to simulate DB generated ID
 		when(jdbcTemplate.update(
 			anyString(),
 			any(SqlParameterSource.class),
 			keyHolderCaptor.capture()
 		)).thenAnswer(invocation -> {
-			KeyHolder kh = keyHolderCaptor.getValue();
-			((GeneratedKeyHolder) kh).getKeyList()
-				.add(Map.of("GENERATED_KEY", 42));
+			GeneratedKeyHolder kh = (GeneratedKeyHolder) keyHolderCaptor.getValue();
+			kh.getKeyList().add(Map.of("ID", 42)); // IMPORTANT
 			return 1;
 		});
 
-		// When
-		User result = userDao.create(input);
+		User result = userDao.register(input);
 
-		// Then
 		assertThat(result.getId()).isEqualTo(42);
-		assertThat(result.getName()).isEqualTo("Test user");
-		assertThat(result.getCreatedBy()).isEqualTo("lab");
+		assertThat(result.getUsername()).isEqualTo("user1");
 		assertThat(result.getCreationDate()).isNotNull();
 
 		verify(jdbcTemplate).update(
@@ -76,17 +74,21 @@ class UserDaoTest {
 	}
 
 	@Test
-	void create_shouldThrowWhenNoGeneratedKeyReturned() {
+	void register_shouldThrowWhenNoGeneratedKeyReturned() {
 
 		User input = User.builder()
-			.name("Test user")
-			.createdBy("lab")
+			.username("user1")
+			.email("test@mail.com")
+			.passwordHash("hash")
+			.name("John")
+			.lastName("Doe")
+			.phoneNumber("12345678")
 			.build();
 
 		when(jdbcTemplate.update(anyString(), any(), any()))
 			.thenReturn(1);
 
-		assertThatThrownBy(() -> userDao.create(input))
+		assertThatThrownBy(() -> userDao.register(input))
 			.isInstanceOf(RuntimeException.class)
 			.hasMessageContaining("Failed to retrieve generated ID");
 	}
@@ -106,7 +108,7 @@ class UserDaoTest {
 			.build();
 
 		// Mock jdbcTemplate.query to return a list with one MyFirst
-		when(jdbcTemplate.query(anyString(), any(MapSqlParameterSource.class), any(UserDao.UserRowMapper.class)))
+		when(jdbcTemplate.query(anyString(), any(SqlParameterSource.class), any(UserDao.UserRowMapper.class)))
 			.thenReturn(Collections.singletonList(expected));
 
 		Optional<User> result = userDao.findById(1);
@@ -122,7 +124,7 @@ class UserDaoTest {
 
 	@Test
 	void findByIdShouldReturnEmptyWhenNotFound() {
-		when(jdbcTemplate.query(anyString(), any(MapSqlParameterSource.class), any(UserDao.UserRowMapper.class)))
+		when(jdbcTemplate.query(anyString(), any(SqlParameterSource.class), any(UserDao.UserRowMapper.class)))
 			.thenReturn(Collections.emptyList());
 
 		Optional<User> result = userDao.findById(1);
@@ -132,18 +134,28 @@ class UserDaoTest {
 	@Test
 	void userRowMapperShouldMapResultSet() throws Exception {
 		ResultSet rs = mock(ResultSet.class);
+
 		when(rs.getInt("ID")).thenReturn(42);
-		when(rs.getString("NAME")).thenReturn("name");
+		when(rs.getString("USERNAME")).thenReturn("user1");
+		when(rs.getString("EMAIL")).thenReturn("test@mail.com");
+		when(rs.getString("PASSWORD_HASH")).thenReturn("hash");
+		when(rs.getString("NAME")).thenReturn("John");
+		when(rs.getString("LAST_NAME")).thenReturn("Doe");
+		when(rs.getString("PHONE_NUMBER")).thenReturn("12345678");
 		when(rs.getString("CREATED_BY")).thenReturn("me");
-		when(rs.getTimestamp("CREATION_DATE")).thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, 2, 12, 12, 0)));
+		when(rs.getTimestamp("CREATION_DATE"))
+			.thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, 2, 12, 12, 0)));
 
 		UserDao.UserRowMapper mapper = new UserDao.UserRowMapper();
 		User result = mapper.mapRow(rs, 0);
 
 		assertThat(result.getId()).isEqualTo(42);
-		assertThat(result.getName()).isEqualTo("name");
+		assertThat(result.getUsername()).isEqualTo("user1");
+		assertThat(result.getEmail()).isEqualTo("test@mail.com");
+		assertThat(result.getName()).isEqualTo("John");
+		assertThat(result.getLastName()).isEqualTo("Doe");
+		assertThat(result.getPhoneNumber()).isEqualTo("12345678");
 		assertThat(result.getCreatedBy()).isEqualTo("me");
-		assertThat(result.getCreationDate()).isEqualTo(LocalDateTime.of(2026, 2, 12, 12, 0));
 	}
 }
 

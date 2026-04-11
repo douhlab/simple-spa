@@ -34,4 +34,6 @@ public class RegistrationRequest {
     @NotEmpty
     private String phoneNumber;
 
+    private Boolean bypassReCAPTCHA;
+    private String captchaToken;
 }
