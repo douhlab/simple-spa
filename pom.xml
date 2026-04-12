@@ -32,7 +32,7 @@
 
         <sonar.organization>douhlab</sonar.organization>
 
-        <mailgun.version>2.2.1</mailgun.version>
+        <mailgun.version>2.4.0</mailgun.version>
 
     </properties>
     <dependencies>
