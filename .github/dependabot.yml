@@ -6,6 +6,10 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      jjwt:
+        patterns:
+          - "io.jsonwebtoken:*"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
