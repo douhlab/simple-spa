@@ -85,7 +85,7 @@
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-sqlserver</artifactId>
-            <version>10.10.0</version>
+            <version>10.22.0</version>
         </dependency>
 
         <dependency>
