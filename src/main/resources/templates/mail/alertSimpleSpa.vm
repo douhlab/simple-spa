@@ -1,0 +1,37 @@
+<html>
+<head>
+    <style>
+        table {
+            border-collapse: collapse;
+            font-family: Consolas, monaco, monospace;
+            font-style: normal;
+            font-variant: normal;
+            font-weight: 400;
+            line-height: 20px;
+        }
+
+        td {
+            border: 1px solid black;
+            padding: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Alert simple SPA</h1>
+<h3>Date: $currentDate</h3>
+<h3>This is an alert from my simple spa LAB</h3>
+
+<p>Here are the number of messages to send (total: $messages.size()):</p>
+<table>
+    <tbody>
+        #foreach($message in $message)
+            <tr>
+                <td>$message</td>
+            </tr>
+        #end
+    </tbody>
+</table>
+</body>
+</html>

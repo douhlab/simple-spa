@@ -32,6 +32,7 @@
 
         <sonar.organization>douhlab</sonar.organization>
 
+        <apache-velocity-engine.version>2.4.1</apache-velocity-engine.version>
         <mailgun.version>2.4.0</mailgun.version>
 
     </properties>
@@ -74,6 +75,12 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>12.10.2.jre11</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity-engine-core</artifactId>
+            <version>${apache-velocity-engine.version}</version>
         </dependency>
 
         <dependency>
