@@ -2,6 +2,7 @@ package com.dev.simplespa.dao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.contains;
@@ -172,5 +173,29 @@ class PersonalLeaveRecordDaoTest {
 		assertThat(result.getCreatedBy()).isEqualTo("me");
 		assertThat(result.getCreationDate()).isEqualTo(LocalDateTime.of(2026, 2, 12, 12, 0));
 	}
+
+	@Test
+	void shouldCallJdbcTemplateUpdate_withCorrectSqlAndParams() {
+		int id = 123;
+
+		// capture arguments
+		ArgumentCaptor<String> sqlCaptor = ArgumentCaptor.forClass(String.class);
+		ArgumentCaptor<SqlParameterSource> paramCaptor = ArgumentCaptor.forClass(SqlParameterSource.class);
+
+		personalLeaveRecordDao.deleteById(id);
+
+		verify(jdbcTemplate).update(sqlCaptor.capture(), paramCaptor.capture());
+
+		// ✅ assert SQL
+		assertEquals(
+			"delete from PERSONAL_LEAVE_RECORD where ID = :id",
+			sqlCaptor.getValue()
+		);
+
+		// ✅ assert parameter value
+		SqlParameterSource params = paramCaptor.getValue();
+		assertEquals(id, params.getValue("id"));
+	}
+
 }
 

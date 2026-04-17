@@ -3,6 +3,7 @@ package com.dev.simplespa.component.controller;
 import java.util.Map;
 import java.util.Optional;
 
+import com.dev.simplespa.component.controller.dto.LoginResponse;
 import com.dev.simplespa.component.controller.util.JwtUtil;
 import com.dev.simplespa.model.domain.RegistrationRequest;
 import com.dev.simplespa.module.RecaptchaService;
@@ -26,7 +27,7 @@ public class AuthController {
 	private final UserService userService;
 
 	@PostMapping("/login")
-	public Map<String, String> login(@RequestBody Map<String, String> body) {
+	public LoginResponse login(@RequestBody Map<String, String> body) {
 
 		boolean bypassReCAPTCHA =
 			Optional.ofNullable(body.get("bypassReCAPTCHA")).map(Boolean::parseBoolean).orElse(false);
@@ -42,8 +43,11 @@ public class AuthController {
 		String rawPassword = body.get("password");
 
 		if (userService.isAuthentic(username, rawPassword)) {
+			var user = userService.findByUsername(username)
+				.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+					"Problem fetching user details"));
 			String token = jwtUtil.generateToken(username);
-			return Map.of("token", token);
+			return LoginResponse.builder().token(token).user(user).build();
 		} else {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
 		}

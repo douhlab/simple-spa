@@ -82,6 +82,12 @@ public class PersonalLeaveRecordDao {
 		return jdbcTemplate.query(sql, parameters, new PersonalLeaveRecordRowMapper()).stream().findFirst();
 	}
 
+	public void deleteById(int id) {
+		String sql = "delete from PERSONAL_LEAVE_RECORD where ID = :id";
+		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
+		jdbcTemplate.update(sql, parameters);
+	}
+
 	protected static class PersonalLeaveRecordRowMapper implements RowMapper<PersonalLeaveRecord> {
 		@Override
 		public PersonalLeaveRecord mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {

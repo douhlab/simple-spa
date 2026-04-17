@@ -3,6 +3,7 @@ package com.dev.simplespa.module.personalleaverecord;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -142,4 +143,17 @@ class PersonalLeaveRecordServiceTest {
         // then
         assertThat(actual).hasSize(3);
     }
+
+    @Test
+    void findDeleteById() {
+        // given
+        var leaveRecordId = 1;
+
+        // when
+        personalLeaveRecordService.deleteById(leaveRecordId);
+
+        // then
+        verify(personalLeaveRecordDao).deleteById(leaveRecordId);
+    }
+
 }

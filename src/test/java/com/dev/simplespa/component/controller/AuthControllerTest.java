@@ -17,6 +17,7 @@ import com.dev.simplespa.module.RecaptchaService;
 import com.dev.simplespa.module.user.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -48,83 +49,112 @@ class AuthControllerTest {
 	// ---------------- LOGIN ----------------
 
 	@Test
-	void login_shouldReturnToken_whenValidCredentialsAndCaptchaOk() throws Exception {
+	void shouldLoginSuccessfully() throws Exception {
+		var user = User.builder().username("user1").build();
 
-		Map<String, String> request = Map.of(
+		Map<String, String> body = Map.of(
 			"username", "user1",
 			"password", "pass",
-			"captchaToken", "token"
+			"captchaToken", "valid-token"
 		);
 
-		when(recaptchaService.verify("token")).thenReturn(true);
-		when(userService.isAuthentic("user1", "pass")).thenReturn(true);
-		when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
+		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
+		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
+		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
+		Mockito.when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(body)))
 			.andExpect(status().isOk())
-			.andExpect(jsonPath("$.token").value("jwt-token"));
+			.andExpect(jsonPath("$.token").value("jwt-token"))
+			.andExpect(jsonPath("$.user.username").value("user1"));
 	}
 
+	// ❌ 2. CAPTCHA FAILURE
 	@Test
-	void login_shouldReturn403_whenCaptchaFails() throws Exception {
-
-		Map<String, String> request = Map.of(
+	void shouldReturn403_whenCaptchaFails() throws Exception {
+		Map<String, String> body = Map.of(
 			"username", "user1",
 			"password", "pass",
-			"captchaToken", "bad"
+			"captchaToken", "bad-token"
 		);
 
-		when(recaptchaService.verify("bad")).thenReturn(false);
+		Mockito.when(recaptchaService.verify("bad-token")).thenReturn(false);
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isForbidden());
+				.content(objectMapper.writeValueAsString(body)))
+			.andExpect(status().isForbidden())
+			.andExpect(status().reason("reCAPTCHA failed"));
 	}
 
+	// ❌ 3. INVALID CREDENTIALS
 	@Test
-	void login_shouldReturn401_whenInvalidCredentials() throws Exception {
-
-		Map<String, String> request = Map.of(
+	void shouldReturn401_whenInvalidCredentials() throws Exception {
+		Map<String, String> body = Map.of(
 			"username", "user1",
 			"password", "wrong",
-			"captchaToken", "token"
+			"captchaToken", "valid-token"
 		);
 
-		when(recaptchaService.verify("token")).thenReturn(true);
-		when(userService.isAuthentic("user1", "wrong")).thenReturn(false);
+		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
+		Mockito.when(userService.isAuthentic("user1", "wrong")).thenReturn(false);
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
-			.andExpect(status().isUnauthorized());
+				.content(objectMapper.writeValueAsString(body)))
+			.andExpect(status().isUnauthorized())
+			.andExpect(status().reason("Invalid credentials"));
 	}
 
+	// ❌ 4. USER NOT FOUND
 	@Test
-	void login_shouldBypassCaptcha_whenFlagTrue() throws Exception {
+	void shouldReturn401_whenUserNotFound() throws Exception {
+		Map<String, String> body = Map.of(
+			"username", "user1",
+			"password", "pass",
+			"captchaToken", "valid-token"
+		);
 
-		Map<String, String> request = Map.of(
+		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
+		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
+		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.empty());
+
+		mockMvc.perform(post(BASE_URL + "/login")
+				.with(csrf())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(body)))
+			.andExpect(status().isUnauthorized())
+			.andExpect(status().reason("Problem fetching user details"));
+	}
+
+	// ✅ 5. BYPASS CAPTCHA
+	@Test
+	void shouldBypassCaptcha_whenFlagIsTrue() throws Exception {
+		var user = User.builder().username("user1").build();
+
+		Map<String, String> body = Map.of(
 			"username", "user1",
 			"password", "pass",
 			"bypassReCAPTCHA", "true"
 		);
 
-		when(userService.isAuthentic("user1", "pass")).thenReturn(true);
-		when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
+		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
+		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
+		Mockito.when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(request)))
+				.content(objectMapper.writeValueAsString(body)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.token").value("jwt-token"));
 
-		verifyNoInteractions(recaptchaService);
+		Mockito.verify(recaptchaService, Mockito.never()).verify(Mockito.any());
 	}
 
 	// ---------------- REGISTER ----------------

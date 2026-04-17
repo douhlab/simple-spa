@@ -33,6 +33,10 @@ public class PersonalLeaveRecordService {
         return personalLeaveRecordDao.findAll(userId).stream().map(this::enrich).toList();
     }
 
+    public void deleteById(int id) {
+        personalLeaveRecordDao.deleteById(id);
+    }
+
     private PersonalLeaveRecord enrich(PersonalLeaveRecord personalLeaveRecord) {
         var employer = employerService.findById(personalLeaveRecord.getEmployer().getId()).orElse(null);
         var user = userService.findById(personalLeaveRecord.getUser().getId()).orElse(null);

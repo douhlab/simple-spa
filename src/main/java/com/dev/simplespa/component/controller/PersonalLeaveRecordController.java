@@ -11,7 +11,9 @@ import com.dev.simplespa.model.domain.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.module.personalleaverecord.PersonalLeaveRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,5 +42,10 @@ public class PersonalLeaveRecordController {
     @GetMapping("/v1/api/personalleaverecords")
     public Optional<PersonalLeaveRecord> findById(@RequestParam @Positive int id) {
         return personalLeaveRecordService.findById(id);
+    }
+
+    @DeleteMapping("/v1/api/personalleaverecords/ids/{id}")
+    public void deleteById(@PathVariable @Positive int id) {
+        personalLeaveRecordService.deleteById(id);
     }
 }
