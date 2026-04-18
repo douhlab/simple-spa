@@ -33,7 +33,7 @@
         <sonar.organization>douhlab</sonar.organization>
 
         <apache-velocity-engine.version>2.4.1</apache-velocity-engine.version>
-        <mailgun.version>2.4.0</mailgun.version>
+        <mailgun.version>2.4.1</mailgun.version>
 
     </properties>
     <dependencies>
