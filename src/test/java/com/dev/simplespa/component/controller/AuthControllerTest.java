@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.dev.simplespa.component.controller.util.JwtUtil;
-import com.dev.simplespa.model.domain.RegistrationRequest;
+import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.model.domain.User;
 import com.dev.simplespa.module.RecaptchaService;
 import com.dev.simplespa.module.user.UserService;
@@ -50,7 +50,7 @@ class AuthControllerTest {
 
 	@Test
 	void shouldLoginSuccessfully() throws Exception {
-		var user = User.builder().username("user1").build();
+		var user = User.builder().id(1).username("user1").build();
 
 		Map<String, String> body = Map.of(
 			"username", "user1",
@@ -61,7 +61,7 @@ class AuthControllerTest {
 		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
 		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
 		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
-		Mockito.when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
+		Mockito.when(jwtUtil.generateToken("user1", 1)).thenReturn("jwt-token");
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
@@ -135,7 +135,7 @@ class AuthControllerTest {
 	// ✅ 5. BYPASS CAPTCHA
 	@Test
 	void shouldBypassCaptcha_whenFlagIsTrue() throws Exception {
-		var user = User.builder().username("user1").build();
+		var user = User.builder().id(1).username("user1").build();
 
 		Map<String, String> body = Map.of(
 			"username", "user1",
@@ -145,7 +145,7 @@ class AuthControllerTest {
 
 		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
 		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
-		Mockito.when(jwtUtil.generateToken("user1")).thenReturn("jwt-token");
+		Mockito.when(jwtUtil.generateToken("user1", 1)).thenReturn("jwt-token");
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())

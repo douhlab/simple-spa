@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.dev.simplespa.model.domain.FileInfoDto;
+import com.dev.simplespa.component.controller.dto.FileInfoDto;
 import com.dev.simplespa.model.domain.UploadedFile;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;

@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.LoginResponse;
 import com.dev.simplespa.component.controller.util.JwtUtil;
-import com.dev.simplespa.model.domain.RegistrationRequest;
+import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.module.RecaptchaService;
 import com.dev.simplespa.module.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class AuthController {
 			var user = userService.findByUsername(username)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
 					"Problem fetching user details"));
-			String token = jwtUtil.generateToken(username);
+			String token = jwtUtil.generateToken(username, user.getId());
 			return LoginResponse.builder().token(token).user(user).build();
 		} else {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");

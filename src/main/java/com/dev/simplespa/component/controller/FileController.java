@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import com.dev.simplespa.model.domain.DownloadedFileDto;
-import com.dev.simplespa.model.domain.FileInfoDto;
+import com.dev.simplespa.component.controller.dto.DownloadedFileDto;
+import com.dev.simplespa.component.controller.dto.FileInfoDto;
 import com.dev.simplespa.model.domain.UploadedFile;
 import com.dev.simplespa.module.file.AzureBlobService;
 import com.dev.simplespa.module.file.LocalFileStorageService;

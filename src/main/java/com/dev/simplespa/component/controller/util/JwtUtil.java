@@ -17,9 +17,10 @@ public class JwtUtil {
 
     private final String SECRET_KEY = "ThisIsASuperLongSecretKeyThatIsAtLeast32Bytes!";
 
-    public String generateToken(String username) {
+    public String generateToken(String username, int userId) {
         return Jwts.builder()
             .setSubject(username)
+            .claim("userId", userId)
             .setIssuedAt(new Date())
             .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
             .signWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
@@ -33,6 +34,15 @@ public class JwtUtil {
             .parseSignedClaims(token)
             .getPayload()
             .getSubject();
+    }
+
+    public Integer extractUserId(String token) {
+        return Jwts.parser()
+            .verifyWith(Keys.hmacShaKeyFor(SECRET_KEY.getBytes(StandardCharsets.UTF_8)))
+            .build()
+            .parseSignedClaims(token)
+            .getPayload()
+            .get("userId", Integer.class);
     }
 
     public static void main(String[] args) {

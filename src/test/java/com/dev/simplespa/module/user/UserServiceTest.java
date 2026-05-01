@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.dev.simplespa.dao.UserDao;
-import com.dev.simplespa.model.domain.RegistrationRequest;
+import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.model.domain.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

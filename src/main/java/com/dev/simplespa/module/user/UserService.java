@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.dev.simplespa.dao.UserDao;
-import com.dev.simplespa.model.domain.RegistrationRequest;
+import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.model.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

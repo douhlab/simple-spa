@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.dao.PersonalLeaveRecordDao;
 import com.dev.simplespa.model.domain.PersonalLeaveRecord;
-import com.dev.simplespa.model.domain.PersonalLeaveRecordCreationRequest;
+import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.module.employer.EmployerService;
 import com.dev.simplespa.module.user.UserService;
 import lombok.RequiredArgsConstructor;

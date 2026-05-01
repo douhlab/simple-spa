@@ -3,6 +3,7 @@ package com.dev.simplespa.model.domain;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;

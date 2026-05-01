@@ -1,4 +1,4 @@
-package com.dev.simplespa.model.domain;
+package com.dev.simplespa.component.controller.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

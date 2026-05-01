@@ -3,6 +3,7 @@ package com.dev.simplespa.component.controller.filter;
 import java.io.IOException;
 import java.util.List;
 
+import com.dev.simplespa.component.controller.dto.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,9 +29,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
 			try {
+				int userId = jwtUtil.extractUserId(token);
 				String username = jwtUtil.extractUsername(token);
+				UserPrincipal principal = new UserPrincipal(userId, username);
 				UsernamePasswordAuthenticationToken auth =
-					new UsernamePasswordAuthenticationToken(username, null, List.of());
+					new UsernamePasswordAuthenticationToken(principal, null, List.of());
 				SecurityContextHolder.getContext().setAuthentication(auth);
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

@@ -8,7 +8,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.model.domain.Employer;
 import com.dev.simplespa.model.domain.PersonalLeaveRecord;
-import com.dev.simplespa.model.domain.PersonalLeaveRecordCreationRequest;
+import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.model.domain.User;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;

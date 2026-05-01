@@ -19,7 +19,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.model.domain.Employer;
 import com.dev.simplespa.model.domain.PersonalLeaveRecord;
-import com.dev.simplespa.model.domain.PersonalLeaveRecordCreationRequest;
+import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.model.domain.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

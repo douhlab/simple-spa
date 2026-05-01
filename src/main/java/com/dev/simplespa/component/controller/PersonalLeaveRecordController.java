@@ -7,7 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 
 import com.dev.simplespa.model.domain.PersonalLeaveRecord;
-import com.dev.simplespa.model.domain.PersonalLeaveRecordCreationRequest;
+import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.module.personalleaverecord.PersonalLeaveRecordService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
