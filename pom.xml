@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.10</version>
+        <version>3.5.14</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.dev.simplespa</groupId>
@@ -33,7 +33,7 @@
         <sonar.organization>douhlab</sonar.organization>
 
         <apache-velocity-engine.version>2.4.1</apache-velocity-engine.version>
-        <mailgun.version>2.4.0</mailgun.version>
+        <mailgun.version>2.4.1</mailgun.version>
 
     </properties>
     <dependencies>
@@ -181,7 +181,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>5.5.0.6356</version>
+                <version>5.6.0.6792</version>
             </plugin>
         </plugins>
     </build>
