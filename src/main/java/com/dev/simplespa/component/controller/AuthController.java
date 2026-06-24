@@ -9,6 +9,7 @@ import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.module.RecaptchaService;
 import com.dev.simplespa.module.user.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping(value = "/${application.product}")
 @RequiredArgsConstructor
+@Slf4j
 public class AuthController {
 
 	private final JwtUtil jwtUtil;
@@ -34,6 +36,7 @@ public class AuthController {
 		if (!bypassReCAPTCHA) {
 			// 1️⃣ Verify reCAPTCHA
 			boolean captchaOk = recaptchaService.verify(body.get("captchaToken"));
+			log.info("Authentication - captchaCheckResult: {}", captchaOk);
 			if (!captchaOk) {
 				throw new ResponseStatusException(HttpStatus.FORBIDDEN, "reCAPTCHA failed");
 			}
