@@ -1,5 +1,7 @@
 package com.dev.simplespa.module.car;
 
+import static java.time.Month.JANUARY;
+import static java.time.Month.JUNE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,7 +57,7 @@ class CarServiceTest {
 			.name("My Car")
 			.model("Civic")
 			.modelYear(2020)
-			.ownedDate(LocalDate.of(2024, 1, 1))
+			.ownedDate(LocalDate.of(2024, JANUARY, 1))
 			.odometerWhenOwned(50000)
 			.priceInUsdWhenOwned(15000)
 			.note("note")
@@ -101,7 +103,7 @@ class CarServiceTest {
 			.amountInUsd(50)
 			.serviceStationId(2)
 			.mainOdometer(51000)
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.note("full tank")
 			.build();
 
@@ -133,7 +135,7 @@ class CarServiceTest {
 			.description("Fuel")
 			.amountInUsd(50)
 			.serviceStationId(2)
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.fuelEvent(fuelEvent)
 			.build();
 
@@ -159,7 +161,7 @@ class CarServiceTest {
 			.description("Fuel")
 			.amountInUsd(50)
 			.serviceStationId(2)
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.build();
 
 		when(carDao.findById(99)).thenReturn(Optional.empty());
@@ -179,7 +181,7 @@ class CarServiceTest {
 			.description("Fuel")
 			.amountInUsd(50)
 			.serviceStationId(99)
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.build();
 
 		when(carDao.findById(1)).thenReturn(Optional.of(car));

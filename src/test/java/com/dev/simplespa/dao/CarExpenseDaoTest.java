@@ -1,5 +1,7 @@
 package com.dev.simplespa.dao;
 
+import static java.time.Month.FEBRUARY;
+import static java.time.Month.JUNE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -52,7 +54,7 @@ class CarExpenseDaoTest {
 			.amountInUsd(50)
 			.serviceStation(CarServiceStation.builder().id(2).build())
 			.mainOdometer(51000)
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.note("full tank")
 			.build();
 
@@ -86,7 +88,7 @@ class CarExpenseDaoTest {
 			.description("Fuel refill")
 			.amountInUsd(50)
 			.serviceStation(CarServiceStation.builder().id(2).build())
-			.dateHappened(LocalDate.of(2024, 6, 1))
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
 			.build();
 
 		when(jdbcTemplate.update(anyString(), any(), any())).thenReturn(1);
@@ -114,7 +116,7 @@ class CarExpenseDaoTest {
 		Optional<CarExpense> result = carExpenseDao.findById(1);
 
 		assertThat(result).isPresent();
-		assertThat(result.get()).isEqualTo(expected);
+		assertThat(result).contains(expected);
 	}
 
 	@Test
@@ -135,11 +137,11 @@ class CarExpenseDaoTest {
 		when(rs.getDouble("AMOUNT_IN_USD")).thenReturn(50.0);
 		when(rs.getInt("SERVICE_STATION_ID")).thenReturn(2);
 		when(rs.getDouble("MAIN_ODOMETER")).thenReturn(51000.0);
-		when(rs.getDate("DATE_HAPPENED")).thenReturn(Date.valueOf(LocalDate.of(2024, 6, 1)));
+		when(rs.getDate("DATE_HAPPENED")).thenReturn(Date.valueOf(LocalDate.of(2024, JUNE, 1)));
 		when(rs.getString("NOTE")).thenReturn("note");
 		when(rs.getString("CREATED_BY")).thenReturn("me");
 		when(rs.getTimestamp("CREATION_DATE"))
-			.thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, 2, 12, 12, 0)));
+			.thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, FEBRUARY, 12, 12, 0)));
 
 		CarExpense result = new CarExpenseDao.CarExpenseRowMapper().mapRow(rs, 0);
 

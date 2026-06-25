@@ -1,7 +1,6 @@
 package com.dev.simplespa.component.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -169,6 +168,6 @@ class FileControllerTest {
 		mockMvc.perform(delete("/simple-spa/v1/api/local/files/local-file.txt"))
 			.andExpect(status().isNoContent());
 
-		verify(localFileStorageService).deleteFile(eq("local-file.txt"));
+		verify(localFileStorageService).deleteFile("local-file.txt");
 	}
 }

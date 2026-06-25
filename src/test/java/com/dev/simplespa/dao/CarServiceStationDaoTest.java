@@ -101,7 +101,7 @@ class CarServiceStationDaoTest {
 		Optional<CarServiceStation> result = carServiceStationDao.findById(1);
 
 		assertThat(result).isPresent();
-		assertThat(result.get()).isEqualTo(expected);
+		assertThat(result).contains(expected);
 	}
 
 	@Test

@@ -34,7 +34,7 @@ class LocalFileStorageServiceTest {
 	}
 
 	@Test
-	void load_shouldReturnReadableResource() throws IOException {
+	void load_shouldReturnReadableResource() {
 		var multipart = new MockMultipartFile("file", "doc.txt", "text/plain", "hello".getBytes());
 		var saved = service.save(multipart);
 

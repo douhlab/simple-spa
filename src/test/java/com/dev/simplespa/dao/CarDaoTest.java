@@ -1,5 +1,7 @@
 package com.dev.simplespa.dao;
 
+import static java.time.Month.FEBRUARY;
+import static java.time.Month.JANUARY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -48,7 +50,7 @@ class CarDaoTest {
 			.name("My Car")
 			.model("Civic")
 			.modelYear(2020)
-			.ownedDate(LocalDate.of(2024, 1, 1))
+			.ownedDate(LocalDate.of(2024, JANUARY, 1))
 			.odometerWhenOwned(50000)
 			.priceInUsdWhenOwned(15000)
 			.note("test note")
@@ -113,7 +115,7 @@ class CarDaoTest {
 		Optional<Car> result = carDao.findById(1);
 
 		assertThat(result).isPresent();
-		assertThat(result.get()).isEqualTo(expected);
+		assertThat(result).contains(expected);
 
 		ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
 		verify(jdbcTemplate).query(anyString(), captor.capture(), any(CarDao.CarRowMapper.class));
@@ -136,13 +138,13 @@ class CarDaoTest {
 		when(rs.getString("NAME")).thenReturn("My Car");
 		when(rs.getString("MODEL")).thenReturn("Civic");
 		when(rs.getInt("MODEL_YEAR")).thenReturn(2020);
-		when(rs.getDate("OWNED_DATE")).thenReturn(Date.valueOf(LocalDate.of(2024, 1, 1)));
+		when(rs.getDate("OWNED_DATE")).thenReturn(Date.valueOf(LocalDate.of(2024, JANUARY, 1)));
 		when(rs.getDouble("ODOMETER_WHEN_OWNED")).thenReturn(50000.0);
 		when(rs.getDouble("PRICE_IN_USD_WHEN_OWNED")).thenReturn(15000.0);
 		when(rs.getString("NOTE")).thenReturn("note");
 		when(rs.getString("CREATED_BY")).thenReturn("me");
 		when(rs.getTimestamp("CREATION_DATE"))
-			.thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, 2, 12, 12, 0)));
+			.thenReturn(Timestamp.valueOf(LocalDateTime.of(2026, FEBRUARY, 12, 12, 0)));
 
 		Car result = new CarDao.CarRowMapper().mapRow(rs, 0);
 
@@ -151,7 +153,7 @@ class CarDaoTest {
 		assertThat(result.getName()).isEqualTo("My Car");
 		assertThat(result.getModel()).isEqualTo("Civic");
 		assertThat(result.getModelYear()).isEqualTo(2020);
-		assertThat(result.getOwnedDate()).isEqualTo(LocalDate.of(2024, 1, 1));
+		assertThat(result.getOwnedDate()).isEqualTo(LocalDate.of(2024, JANUARY, 1));
 		assertThat(result.getCreatedBy()).isEqualTo("me");
 	}
 }

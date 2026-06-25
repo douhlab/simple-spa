@@ -102,7 +102,7 @@ class CarFuelEventDaoTest {
 		Optional<CarFuelEvent> result = carFuelEventDao.findById(1);
 
 		assertThat(result).isPresent();
-		assertThat(result.get()).isEqualTo(expected);
+		assertThat(result).contains(expected);
 	}
 
 	@Test

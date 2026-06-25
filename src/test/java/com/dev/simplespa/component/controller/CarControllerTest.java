@@ -1,5 +1,6 @@
 package com.dev.simplespa.component.controller;
 
+import static java.time.Month.JANUARY;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -36,7 +37,7 @@ class CarControllerTest {
 			.name("My Car")
 			.model("Civic")
 			.modelYear(2020)
-			.ownedDate(LocalDate.of(2024, 1, 1))
+			.ownedDate(LocalDate.of(2024, JANUARY, 1))
 			.odometerWhenOwned(50000)
 			.priceInUsdWhenOwned(15000)
 			.note("test")
