@@ -13,17 +13,18 @@ import java.util.Optional;
 import com.dev.simplespa.model.domain.PersonalLeaveRecord;
 import com.dev.simplespa.component.controller.dto.PersonalLeaveRecordCreationRequest;
 import com.dev.simplespa.module.personalleaverecord.PersonalLeaveRecordService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 @WebMvcTest(PersonalLeaveRecordController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -46,8 +47,10 @@ class PersonalLeaveRecordControllerTest {
 			        "numberOfDays": 3
 			    }
 			""";
-		ObjectMapper mapper = new ObjectMapper();
-		mapper.registerModule(new JavaTimeModule());
+		ObjectMapper mapper = JsonMapper.builder()
+			.findAndAddModules()
+			.disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+			.build();
 
 		var jsonObject = mapper.readValue(json, PersonalLeaveRecordCreationRequest.class);
 

@@ -51,7 +51,7 @@ class PersonalLeaveRecordDaoTest {
 			.dateHappened(now.toLocalDate())
 			.numberOfDays(5)
 			.description("Test leave")
-			.currentBalance(10)
+			.currentBalance(10d)
 			.note("Test note")
 			.build();
 
@@ -95,7 +95,7 @@ class PersonalLeaveRecordDaoTest {
 			.dateHappened(now.toLocalDate())
 			.numberOfDays(5)
 			.description("Test leave")
-			.currentBalance(10)
+			.currentBalance(10d)
 			.note("Test note")
 			.build();
 

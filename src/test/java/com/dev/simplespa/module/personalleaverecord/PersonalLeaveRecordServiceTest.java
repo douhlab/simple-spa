@@ -41,7 +41,7 @@ class PersonalLeaveRecordServiceTest {
         var userId = 1;
         var employerId = 2;
         var numberOfDays =3;
-        var balance = 4;
+        var balance = 4d;
         var description = "myLeaveRequest";
 
         var personalLeaveRecordCreationRequest = PersonalLeaveRecordCreationRequest.builder()

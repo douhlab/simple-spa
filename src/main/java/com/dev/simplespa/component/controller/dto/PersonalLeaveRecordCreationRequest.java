@@ -30,6 +30,6 @@ public class PersonalLeaveRecordCreationRequest {
     private double numberOfDays;
     @NotEmpty
     private String description;
-    private double currentBalance;
+    private Double currentBalance;
     private String note;
 }

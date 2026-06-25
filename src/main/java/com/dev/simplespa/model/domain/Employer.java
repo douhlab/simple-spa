@@ -20,7 +20,7 @@ import lombok.ToString;
 @ToString
 @EqualsAndHashCode
 public class Employer {
-    private int id;
+    private Integer id;
     @NotEmpty
     private String name;
     private LocalDate startWorkDate;
