@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -97,6 +98,16 @@ class EmployerDaoTest {
 	@Test
 	void constructorShouldSetJdbcTemplate() {
 		assertThat(employerDao).isNotNull();
+	}
+
+	@Test
+	void findAllShouldReturnEmployers() {
+		Employer expected = Employer.builder().id(1).name("employer").build();
+		when(jdbcTemplate.query(anyString(), any(EmployerDao.EmployerRowMapper.class)))
+			.thenReturn(List.of(expected));
+
+		assertThat(employerDao.findAll()).containsExactly(expected);
+		verify(jdbcTemplate).query(contains("FROM EMPLOYER"), any(EmployerDao.EmployerRowMapper.class));
 	}
 
 	@Test
