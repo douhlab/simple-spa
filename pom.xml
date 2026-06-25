@@ -30,11 +30,23 @@
         <compiler.source.version>21</compiler.source.version>
         <java.version>21</java.version>
 
-        <sonar.organization>douhlab</sonar.organization>
+        <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
+        <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
 
+        <sonar.organization>douhlab</sonar.organization>
+        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+
+        <!-- main section -->
         <apache-velocity-engine.version>2.4.1</apache-velocity-engine.version>
+        <azure-storage-blob.version>12.35.0</azure-storage-blob.version>
+        <jjwt.version>0.13.0</jjwt.version>
         <mailgun.version>2.4.1</mailgun.version>
+        <mssql-jdbc.version>12.10.2.jre11</mssql-jdbc.version>
+        <springdoc-openapi.version>3.0.3</springdoc-openapi.version>
+
+        <!-- testing section -->
         <wiremock.version>3.13.2</wiremock.version>
+
 
     </properties>
     <dependencies>
@@ -68,14 +80,14 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.2.0</version>
+            <version>${springdoc-openapi.version}</version>
         </dependency>
 
         <!-- SQL Server JDBC Driver -->
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
-            <version>12.10.2.jre11</version>
+            <version>${mssql-jdbc.version}</version>
         </dependency>
 
         <dependency>
@@ -113,17 +125,17 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.13.0</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.13.0</version>
+            <version>${jjwt.version}</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.13.0</version>
+            <version>${jjwt.version}</version>
         </dependency>
 
         <dependency>
@@ -135,7 +147,7 @@
         <dependency>
             <groupId>com.azure</groupId>
             <artifactId>azure-storage-blob</artifactId>
-            <version>12.35.0</version>
+            <version>${azure-storage-blob.version}</version>
         </dependency>
         <!-- Spring Boot Starter for Testing -->
         <dependency>
@@ -168,7 +180,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.15.0</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <compilerArgument>-parameters</compilerArgument>  <!-- This enables parameter names -->
                 </configuration>
@@ -180,7 +192,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.15</version>
+                <version>${jacoco-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -199,7 +211,7 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>5.7.0.6970</version>
+                <version>${sonar-maven-plugin.version}</version>
             </plugin>
         </plugins>
     </build>
