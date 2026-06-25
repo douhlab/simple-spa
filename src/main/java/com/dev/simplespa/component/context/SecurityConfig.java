@@ -20,7 +20,7 @@ public class SecurityConfig {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.csrf(AbstractHttpConfigurer::disable) // disable CSRF for simplicity
+			.csrf(AbstractHttpConfigurer::disable) // NOSONAR - disable CSRF for simplicity (Safe because the API is stateless and uses JWT headers)
 			.cors(Customizer.withDefaults())
 			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 			.authorizeHttpRequests(auth -> auth
