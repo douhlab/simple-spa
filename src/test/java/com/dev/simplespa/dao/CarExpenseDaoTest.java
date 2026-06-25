@@ -115,8 +115,7 @@ class CarExpenseDaoTest {
 
 		Optional<CarExpense> result = carExpenseDao.findById(1);
 
-		assertThat(result).isPresent();
-		assertThat(result).contains(expected);
+		assertThat(result).isPresent().contains(expected);
 	}
 
 	@Test

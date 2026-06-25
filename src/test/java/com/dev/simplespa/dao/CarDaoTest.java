@@ -114,8 +114,7 @@ class CarDaoTest {
 
 		Optional<Car> result = carDao.findById(1);
 
-		assertThat(result).isPresent();
-		assertThat(result).contains(expected);
+		assertThat(result).isPresent().contains(expected);
 
 		ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
 		verify(jdbcTemplate).query(anyString(), captor.capture(), any(CarDao.CarRowMapper.class));
