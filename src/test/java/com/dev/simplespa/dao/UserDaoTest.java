@@ -23,6 +23,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -120,6 +121,18 @@ class UserDaoTest {
 		ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
 		verify(jdbcTemplate).query(anyString(), captor.capture(), any(UserDao.UserRowMapper.class));
 		assertThat(captor.getValue().getValue("id")).isEqualTo(1);
+	}
+
+	@Test
+	void findAllShouldReturnUsers() {
+		User expected = User.builder().id(1).username("user1").build();
+		when(jdbcTemplate.query(anyString(), any(UserDao.UserRowMapper.class)))
+			.thenReturn(Collections.singletonList(expected));
+
+		List<User> result = userDao.findAll();
+
+		assertThat(result).containsExactly(expected);
+		verify(jdbcTemplate).query(contains("FROM USERS"), any(UserDao.UserRowMapper.class));
 	}
 
 	@Test

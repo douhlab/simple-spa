@@ -1,6 +1,7 @@
 package com.dev.simplespa.component.controller;
 
 import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -85,6 +86,14 @@ class PersonalLeaveRecordControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$[0].id").value(1))
 			.andExpect(jsonPath("$[0].description").value("Test Name"));
+	}
+
+	@Test
+	void testDeleteById() throws Exception {
+		mockMvc.perform(delete("/simple-spa/v1/api/personalleaverecords/ids/1"))
+			.andExpect(status().isOk());
+
+		verify(personalLeaveRecordService).deleteById(1);
 	}
 
 	@Test

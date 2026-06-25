@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -110,6 +111,31 @@ class PersonalLeaveRecordDaoTest {
 	@Test
 	void constructorShouldSetJdbcTemplate() {
 		assertThat(personalLeaveRecordDao).isNotNull();
+	}
+
+	@Test
+	void findAllShouldReturnRecordsForUser() {
+		var now = LocalDateTime.now();
+		PersonalLeaveRecord expected = PersonalLeaveRecord.builder()
+			.id(1)
+			.user(User.builder().id(42).build())
+			.description("leave")
+			.dateHappened(now.toLocalDate())
+			.build();
+
+		when(jdbcTemplate.query(anyString(),
+			any(MapSqlParameterSource.class),
+			any(PersonalLeaveRecordDao.PersonalLeaveRecordRowMapper.class)))
+			.thenReturn(List.of(expected));
+
+		List<PersonalLeaveRecord> result = personalLeaveRecordDao.findAll(42);
+
+		assertThat(result).containsExactly(expected);
+
+		ArgumentCaptor<MapSqlParameterSource> captor = ArgumentCaptor.forClass(MapSqlParameterSource.class);
+		verify(jdbcTemplate).query(anyString(), captor.capture(),
+			any(PersonalLeaveRecordDao.PersonalLeaveRecordRowMapper.class));
+		assertThat(captor.getValue().getValue("userId")).isEqualTo(42);
 	}
 
 	@Test
