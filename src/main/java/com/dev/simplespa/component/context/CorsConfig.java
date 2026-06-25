@@ -15,6 +15,7 @@ public class CorsConfig {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("https://brave-sky-0fd134503.6.azurestaticapps.net", "http://localhost:4200")
+                        .allowedOrigins("https://www.heyhayhuy.dev")
                         .allowedOrigins("https://heyhayhuy.dev")
                         .allowedMethods("*");
             }
