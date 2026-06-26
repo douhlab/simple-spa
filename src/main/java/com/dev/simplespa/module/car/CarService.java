@@ -44,9 +44,13 @@ public class CarService {
 		return carDao.findById(id);
 	}
 
-	public CarExpense addExpense(CarExpenseCreationRequest request) {
+	public CarExpense addExpense(int userId, CarExpenseCreationRequest request) {
         var car = carDao.findById(request.getCarId())
             .orElseThrow(() -> new RuntimeException("Car not found with ID: " + request.getCarId()));
+
+		if (car.getUser().getId() != userId) {
+			throw new RuntimeException("Car not found with ID: " + request.getCarId());
+		}
 
 		var serviceStation = carServiceStationDao.findById(request.getServiceStationId())
 			.orElseThrow(() -> new RuntimeException(
@@ -65,17 +69,22 @@ public class CarService {
 
 		var expense =  carExpenseDao.create(expenseToCreate);
 
-		Optional.ofNullable(request.getFuelEvent()).map(event -> {
+		return Optional.ofNullable(request.getFuelEvent()).map(event -> {
 			var fuelEventToCreate = event.toBuilder().carExpenseId(expense.getId()).build();
 			var fuelEvent = carFuelEventDao.create(fuelEventToCreate);
 			return expense.toBuilder().fuelEvent(Optional.of(fuelEvent)).build();
-		});
-
-		return expense;
+		}).orElse(expense);
 	}
 
 	public List<CarExpense> findExpensesByCarId(int carId) {
 		return carExpenseDao.findAll().stream().filter(expense -> expense.getCar().getId() == carId).toList();
+	}
+
+	public List<CarExpense> findAllExpenses(int userId) {
+		var userCarIds = findAll(userId).stream().map(Car::getId).toList();
+		return carExpenseDao.findAll().stream()
+			.filter(expense -> userCarIds.contains(expense.getCar().getId()))
+			.toList();
 	}
 
 	public Optional<CarExpense> findExpenseById(int id) {
