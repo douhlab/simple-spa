@@ -27,77 +27,67 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping(value = "/${application.product}")
 public class FileController {
 
-    private final AzureBlobService azureBlobService;
-    private final LocalFileStorageService localFileStorageService;
+	private final AzureBlobService azureBlobService;
+	private final LocalFileStorageService localFileStorageService;
+	private final CurrentUserService currentUserService;
 
-    @PostMapping("/v1/api/azure/files/save")
-    public ResponseEntity<UploadedFile> uploadToAzure(@RequestParam MultipartFile file) throws IOException {
-        if (file.getSize() > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("File too large");
-        }
-        var uploadedFile = azureBlobService.uploadFile(file);
+	@PostMapping("/v1/api/azure/files/save")
+	public ResponseEntity<UploadedFile> uploadToAzure(@RequestParam MultipartFile file) throws IOException {
+		if (file.getSize() > 10 * 1024 * 1024) {
+			throw new IllegalArgumentException("File too large");
+		}
+		var uploadedFile = azureBlobService.uploadFile(currentUserService.getCurrentUserId(), file);
+		return ResponseEntity.ok(uploadedFile);
+	}
 
-        // Save blobName in DB
+	@GetMapping("/v1/api/azure/files/{fileName}")
+	public ResponseEntity<byte[]> downloadFromAzure(@PathVariable String fileName) {
+		DownloadedFileDto downloadedFile =
+			azureBlobService.downloadFile(currentUserService.getCurrentUserId(), fileName);
 
-        return ResponseEntity.ok(uploadedFile);
-    }
+		return ResponseEntity.ok()
+			.contentType(MediaType.valueOf(downloadedFile.getContentType()))
+			.body(downloadedFile.getContent());
+	}
 
-    @GetMapping("/v1/api/azure/files/{blobName}")
-    public ResponseEntity<byte[]> downloadFromAzure(@PathVariable String blobName) {
+	@GetMapping("/v1/api/azure/files")
+	public ResponseEntity<List<FileInfoDto>> listFiles() {
+		return ResponseEntity.ok(azureBlobService.listFiles(currentUserService.getCurrentUserId()));
+	}
 
-        DownloadedFileDto downloadedFile = azureBlobService.downloadFile(blobName);
+	@DeleteMapping("/v1/api/azure/files/{fileName}")
+	public ResponseEntity<Void> deleteFromAzure(@PathVariable String fileName) {
+		azureBlobService.deleteFile(currentUserService.getCurrentUserId(), fileName);
+		return ResponseEntity.noContent().build();
+	}
 
-        return ResponseEntity.ok()
-            .contentType(MediaType.valueOf(downloadedFile.getContentType())) // or dynamic
-            .body(downloadedFile.getContent());
-    }
+	@PostMapping("/v1/api/local/files/save")
+	public ResponseEntity<UploadedFile> saveLocally(@RequestParam MultipartFile file) {
+		if (file.getSize() > 10 * 1024 * 1024) {
+			throw new IllegalArgumentException("File too large");
+		}
 
-    @GetMapping("/v1/api/azure/files")
-    public ResponseEntity<List<FileInfoDto>> listFiles() {
-        return ResponseEntity.ok(azureBlobService.listFiles());
-    }
+		var uploadedFile = localFileStorageService.save(currentUserService.getCurrentUserId(), file);
+		return ResponseEntity.ok(uploadedFile);
+	}
 
-    @DeleteMapping("/v1/api/azure/files/{fileName}")
-    public ResponseEntity<Void> deleteFromAzure(@PathVariable String fileName) {
-        azureBlobService.deleteFile(fileName);
+	@GetMapping("/v1/api/local/files/{fileName}")
+	public ResponseEntity<Resource> downloadFromLocal(@PathVariable String fileName) throws IOException {
+		Resource file = localFileStorageService.load(currentUserService.getCurrentUserId(), fileName);
+		String contentType = Files.probeContentType(file.getFile().toPath());
+		return ResponseEntity.ok()
+			.contentType(MediaType.valueOf(contentType))
+			.body(file);
+	}
 
-        return ResponseEntity.noContent().build();
-    }
+	@GetMapping("/v1/api/local/files")
+	public ResponseEntity<List<FileInfoDto>> listLocalFiles() throws IOException {
+		return ResponseEntity.ok(localFileStorageService.listFiles(currentUserService.getCurrentUserId()));
+	}
 
-
-    @PostMapping("/v1/api/local/files/save")
-    public ResponseEntity<UploadedFile> saveLocally(@RequestParam MultipartFile file) {
-        if (file.getSize() > 10 * 1024 * 1024) {
-            throw new IllegalArgumentException("File too large");
-        }
-
-        var uploadedFile = localFileStorageService.save(file);
-
-        // Save blobName in DB
-
-        return ResponseEntity.ok(uploadedFile);
-    }
-
-    @GetMapping("/v1/api/local/files/{fileName}")
-    public ResponseEntity<Resource> downloadFromLocal(@PathVariable String fileName) throws IOException {
-
-        Resource file = localFileStorageService.load(fileName);
-        String contentType = Files.probeContentType(file.getFile().toPath());
-        return ResponseEntity.ok()
-            .contentType(MediaType.valueOf(contentType)) // or dynamic
-            .body(file);
-    }
-
-    @GetMapping("/v1/api/local/files")
-    public ResponseEntity<List<FileInfoDto>> listLocalFiles() throws IOException {
-
-        return ResponseEntity.ok(localFileStorageService.listFiles());
-    }
-
-    @DeleteMapping("/v1/api/local/files/{fileName}")
-    public ResponseEntity<Void> deleteFromLocal(@PathVariable String fileName) throws IOException {
-        localFileStorageService.deleteFile(fileName);
-
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/v1/api/local/files/{fileName}")
+	public ResponseEntity<Void> deleteFromLocal(@PathVariable String fileName) throws IOException {
+		localFileStorageService.deleteFile(currentUserService.getCurrentUserId(), fileName);
+		return ResponseEntity.noContent().build();
+	}
 }

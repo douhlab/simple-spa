@@ -13,6 +13,7 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobHttpHeaders;
 import com.azure.storage.blob.models.BlobItem;
 import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.ListBlobsOptions;
 import com.dev.simplespa.component.controller.dto.DownloadedFileDto;
 import com.dev.simplespa.component.controller.dto.FileInfoDto;
 import com.dev.simplespa.model.domain.UploadedFile;
@@ -38,8 +39,9 @@ public class AzureBlobService {
 			.getBlobContainerClient(containerName);
 	}
 
-	public UploadedFile uploadFile(MultipartFile file) throws IOException {
-		String blobName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+	public UploadedFile uploadFile(int userId, MultipartFile file) throws IOException {
+		String fileName = UUID.randomUUID() + "-" + file.getOriginalFilename();
+		String blobName = userBlobName(userId, fileName);
 
 		BlobHttpHeaders headers = new BlobHttpHeaders().setContentType(file.getContentType());
 		BlobClient blobClient = containerClient.getBlobClient(blobName);
@@ -48,34 +50,40 @@ public class AzureBlobService {
 		blobClient.setHttpHeaders(headers);
 
 		return UploadedFile.builder()
-			.name(blobName)
+			.name(fileName)
 			.originalName(file.getOriginalFilename())
 			.uploadedAt(LocalDateTime.now())
 			.build();
 	}
 
-	public DownloadedFileDto downloadFile(String blobName) {
-		BlobClient blobClient = containerClient.getBlobClient(blobName);
+	public DownloadedFileDto downloadFile(int userId, String fileName) {
+		BlobClient blobClient = containerClient.getBlobClient(userBlobName(userId, fileName));
 
 		byte[] content = blobClient.downloadContent().toBytes();
 		return DownloadedFileDto.builder()
 			.content(content)
 			.contentType(blobClient.getProperties().getContentType())
-			.fileName(blobName)
+			.fileName(fileName)
 			.build();
 	}
 
-	public List<FileInfoDto> listFiles() {
-
+	public List<FileInfoDto> listFiles(int userId) {
 		List<FileInfoDto> files = new ArrayList<>();
+		String prefix = userPrefix(userId);
+		ListBlobsOptions options = new ListBlobsOptions().setPrefix(prefix);
 
-		for (BlobItem blobItem : containerClient.listBlobs()) {
+		for (BlobItem blobItem : containerClient.listBlobs(options, null)) {
+			String blobName = blobItem.getName();
+			if (!blobName.startsWith(prefix)) {
+				continue;
+			}
 
-			BlobClient blobClient = containerClient.getBlobClient(blobItem.getName());
+			String fileName = blobName.substring(prefix.length());
+			BlobClient blobClient = containerClient.getBlobClient(blobName);
 			BlobProperties properties = blobClient.getProperties();
 
 			files.add(new FileInfoDto(
-				blobItem.getName(),
+				fileName,
 				properties.getContentType(),
 				properties.getBlobSize(),
 				blobClient.getBlobUrl(),
@@ -86,8 +94,19 @@ public class AzureBlobService {
 		return files;
 	}
 
-	public void deleteFile(String blobName) {
-		BlobClient blobClient = containerClient.getBlobClient(blobName);
+	public void deleteFile(int userId, String fileName) {
+		BlobClient blobClient = containerClient.getBlobClient(userBlobName(userId, fileName));
 		blobClient.delete();
+	}
+
+	private String userPrefix(int userId) {
+		return userId + "/";
+	}
+
+	private String userBlobName(int userId, String fileName) {
+		if (fileName.contains("..") || fileName.contains("/")) {
+			throw new IllegalArgumentException("Invalid file name");
+		}
+		return userPrefix(userId) + fileName;
 	}
 }

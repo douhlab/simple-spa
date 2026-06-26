@@ -1,6 +1,7 @@
 package com.dev.simplespa.component.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -20,6 +21,7 @@ import com.dev.simplespa.component.controller.dto.FileInfoDto;
 import com.dev.simplespa.model.domain.UploadedFile;
 import com.dev.simplespa.module.file.AzureBlobService;
 import com.dev.simplespa.module.file.LocalFileStorageService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
@@ -35,14 +37,27 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 class FileControllerTest {
 
+	private static final int USER_ID = 42;
+
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private FileController fileController;
 
 	@MockitoBean
 	private AzureBlobService azureBlobService;
 
 	@MockitoBean
 	private LocalFileStorageService localFileStorageService;
+
+	@MockitoBean
+	private CurrentUserService currentUserService;
+
+	@BeforeEach
+	void setUp() {
+		when(currentUserService.getCurrentUserId()).thenReturn(USER_ID);
+	}
 
 	@Test
 	void uploadToAzure_shouldReturnUploadedFile() throws Exception {
@@ -53,16 +68,13 @@ class FileControllerTest {
 			.uploadedAt(LocalDateTime.now())
 			.build();
 
-		when(azureBlobService.uploadFile(any())).thenReturn(uploaded);
+		when(azureBlobService.uploadFile(eq(USER_ID), any())).thenReturn(uploaded);
 
 		mockMvc.perform(multipart("/simple-spa/v1/api/azure/files/save").file(file))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("name").value("blob-name"))
 			.andExpect(jsonPath("originalName").value("test.txt"));
 	}
-
-	@Autowired
-	private FileController fileController;
 
 	@Test
 	void uploadToAzure_shouldRejectLargeFile() {
@@ -81,7 +93,7 @@ class FileControllerTest {
 			.fileName("blob-name")
 			.build();
 
-		when(azureBlobService.downloadFile("blob-name")).thenReturn(downloaded);
+		when(azureBlobService.downloadFile(USER_ID, "blob-name")).thenReturn(downloaded);
 
 		mockMvc.perform(get("/simple-spa/v1/api/azure/files/blob-name"))
 			.andExpect(status().isOk())
@@ -90,9 +102,9 @@ class FileControllerTest {
 	}
 
 	@Test
-	void listAzureFiles_shouldReturnFileList() throws Exception {
+	void listAzureFiles_shouldReturnFileListForCurrentUser() throws Exception {
 		var files = List.of(new FileInfoDto("blob-name", "text/plain", 5, "http://url", Instant.now()));
-		when(azureBlobService.listFiles()).thenReturn(files);
+		when(azureBlobService.listFiles(USER_ID)).thenReturn(files);
 
 		mockMvc.perform(get("/simple-spa/v1/api/azure/files"))
 			.andExpect(status().isOk())
@@ -104,7 +116,7 @@ class FileControllerTest {
 		mockMvc.perform(delete("/simple-spa/v1/api/azure/files/blob-name"))
 			.andExpect(status().isNoContent());
 
-		verify(azureBlobService).deleteFile("blob-name");
+		verify(azureBlobService).deleteFile(USER_ID, "blob-name");
 	}
 
 	@Test
@@ -116,7 +128,7 @@ class FileControllerTest {
 			.uploadedAt(LocalDateTime.now())
 			.build();
 
-		when(localFileStorageService.save(any())).thenReturn(uploaded);
+		when(localFileStorageService.save(eq(USER_ID), any())).thenReturn(uploaded);
 
 		mockMvc.perform(multipart("/simple-spa/v1/api/local/files/save").file(file))
 			.andExpect(status().isOk())
@@ -147,16 +159,16 @@ class FileControllerTest {
 			}
 		};
 
-		when(localFileStorageService.load("local-file.txt")).thenReturn(resource);
+		when(localFileStorageService.load(USER_ID, "local-file.txt")).thenReturn(resource);
 
 		mockMvc.perform(get("/simple-spa/v1/api/local/files/local-file.txt"))
 			.andExpect(status().isOk());
 	}
 
 	@Test
-	void listLocalFiles_shouldReturnFileList() throws Exception {
+	void listLocalFiles_shouldReturnFileListForCurrentUser() throws Exception {
 		var files = List.of(new FileInfoDto("local-file.txt", "text/plain", 5, "/url", Instant.now()));
-		when(localFileStorageService.listFiles()).thenReturn(files);
+		when(localFileStorageService.listFiles(USER_ID)).thenReturn(files);
 
 		mockMvc.perform(get("/simple-spa/v1/api/local/files"))
 			.andExpect(status().isOk())
@@ -168,6 +180,6 @@ class FileControllerTest {
 		mockMvc.perform(delete("/simple-spa/v1/api/local/files/local-file.txt"))
 			.andExpect(status().isNoContent());
 
-		verify(localFileStorageService).deleteFile("local-file.txt");
+		verify(localFileStorageService).deleteFile(USER_ID, "local-file.txt");
 	}
 }

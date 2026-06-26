@@ -22,103 +22,115 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class LocalFileStorageService {
-    private static final String STORAGE_FOLDER_NAME = "local-uploads";
+	private static final String STORAGE_FOLDER_NAME = "local-uploads";
 
-    private final Path rootLocation;
+	private final Path rootLocation;
 
-    public LocalFileStorageService() {
-        this.rootLocation = Paths.get(STORAGE_FOLDER_NAME).toAbsolutePath().normalize();
-        init();
-    }
+	public LocalFileStorageService() {
+		this.rootLocation = Paths.get(STORAGE_FOLDER_NAME).toAbsolutePath().normalize();
+		init();
+	}
 
-    private void init() {
-        try {
-            Files.createDirectories(rootLocation);
-        } catch (IOException e) {
-            throw new RuntimeException("Could not initialize folder", e);
-        }
-    }
+	private void init() {
+		try {
+			Files.createDirectories(rootLocation);
+		} catch (IOException e) {
+			throw new RuntimeException("Could not initialize folder", e);
+		}
+	}
 
-    public UploadedFile save(MultipartFile file) {
-        try {
-            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-            Path destination = rootLocation.resolve(filename);
-            Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
-            return UploadedFile.builder()
-                .name(filename)
-                .originalName(file.getOriginalFilename())
-                .uploadedAt(LocalDateTime.now())
-                .build(); // Save this in DB
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
-        }
-    }
+	public UploadedFile save(int userId, MultipartFile file) {
+		try {
+			Path userDirectory = userDirectory(userId);
+			Files.createDirectories(userDirectory);
 
-    public Resource load(String filename) {
-        try {
-            Path file = rootLocation.resolve(filename).normalize();
-            Resource resource = new UrlResource(file.toUri());
+			String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
+			Path destination = userDirectory.resolve(filename).normalize();
+			validateBelongsToUser(userId, destination);
 
-            if (resource.exists() && resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("File not found");
-            }
+			Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
+			return UploadedFile.builder()
+				.name(filename)
+				.originalName(file.getOriginalFilename())
+				.uploadedAt(LocalDateTime.now())
+				.build();
+		} catch (IOException e) {
+			throw new RuntimeException("Failed to store file", e);
+		}
+	}
 
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("File not found", e);
-        }
-    }
+	public Resource load(int userId, String filename) {
+		try {
+			Path file = resolveUserFile(userId, filename);
+			Resource resource = new UrlResource(file.toUri());
 
-    public List<FileInfoDto> listFiles() throws IOException {
+			if (resource.exists() && resource.isReadable()) {
+				return resource;
+			}
+			throw new RuntimeException("File not found");
+		} catch (MalformedURLException e) {
+			throw new RuntimeException("File not found", e);
+		}
+	}
 
-        Path storagePath = Paths.get(STORAGE_FOLDER_NAME);
-        if (!Files.exists(storagePath)) {
-            return Collections.emptyList();
-        }
+	public List<FileInfoDto> listFiles(int userId) throws IOException {
+		Path userDirectory = userDirectory(userId);
+		if (!Files.exists(userDirectory)) {
+			return Collections.emptyList();
+		}
 
-        try (Stream<Path> paths = Files.list(storagePath)) {
+		try (Stream<Path> paths = Files.list(userDirectory)) {
+			return paths
+				.filter(Files::isRegularFile)
+				.map(path -> mapToDto(userId, path))
+				.toList();
+		}
+	}
 
-            return paths
-                .filter(Files::isRegularFile)
-                .map(this::mapToDto)
-                .toList();
-        }
-    }
+	public void deleteFile(int userId, String fileName) throws IOException {
+		Path path = resolveUserFile(userId, fileName);
+		Files.deleteIfExists(path);
+	}
 
-    private FileInfoDto mapToDto(Path path) {
+	private Path userDirectory(int userId) {
+		return rootLocation.resolve(String.valueOf(userId)).normalize();
+	}
 
-        try {
-            String fileName = path.getFileName().toString();
-            long size = Files.size(path);
+	private Path resolveUserFile(int userId, String filename) {
+		Path file = userDirectory(userId).resolve(filename).normalize();
+		validateBelongsToUser(userId, file);
+		return file;
+	}
 
-            String contentType = Files.probeContentType(path);
-            if (contentType == null) {
-                contentType = "application/octet-stream";
-            }
+	private void validateBelongsToUser(int userId, Path file) {
+		Path userDirectory = userDirectory(userId).toAbsolutePath().normalize();
+		if (!file.toAbsolutePath().normalize().startsWith(userDirectory)) {
+			throw new RuntimeException("File not found");
+		}
+	}
 
-            Instant uploadedAt = Files.getLastModifiedTime(path).toInstant();
+	private FileInfoDto mapToDto(int userId, Path path) {
+		try {
+			String fileName = path.getFileName().toString();
+			long size = Files.size(path);
 
-            String downloadUrl = "/component/v1/api/local/files/" + fileName;
+			String contentType = Files.probeContentType(path);
+			if (contentType == null) {
+				contentType = "application/octet-stream";
+			}
 
-            return new FileInfoDto(
-                fileName,
-                contentType,
-                size,
-                downloadUrl,
-                uploadedAt
-            );
+			Instant uploadedAt = Files.getLastModifiedTime(path).toInstant();
+			String downloadUrl = "/simple-spa/v1/api/local/files/" + fileName;
 
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public void deleteFile(String fileName) throws IOException {
-        Path storagePath = Paths.get(STORAGE_FOLDER_NAME);
-
-        Path path = storagePath.resolve(fileName);
-
-        Files.deleteIfExists(path);
-    }
+			return new FileInfoDto(
+				fileName,
+				contentType,
+				size,
+				downloadUrl,
+				uploadedAt
+			);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }
