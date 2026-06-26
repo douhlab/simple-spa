@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.CarCreationRequest;
+import com.dev.simplespa.component.controller.dto.CarExpenseCreationRequest;
 import com.dev.simplespa.component.controller.dto.UserPrincipal;
 import com.dev.simplespa.model.domain.car.Car;
+import com.dev.simplespa.model.domain.car.CarExpense;
+import com.dev.simplespa.model.domain.car.CarExpenseType;
 import com.dev.simplespa.module.car.CarService;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -51,6 +54,40 @@ class CarControllerTest {
 
 		Assertions.assertThat(result).isEqualTo(expected);
 		verify(carService).add(42, request);
+	}
+
+	@Test
+	void addExpense_shouldReturnCreatedExpense() {
+		var request = CarExpenseCreationRequest.builder()
+			.carId(1)
+			.type(CarExpenseType.FUEL)
+			.numberOfDays(0)
+			.description("Fuel")
+			.amountInUsd(50)
+			.serviceStationId(2)
+			.mainOdometer(51000)
+			.dateHappened(LocalDate.of(2024, JANUARY, 1))
+			.note("full tank")
+			.build();
+		var expected = CarExpense.builder().id(10).description("Fuel").build();
+
+		when(carService.addExpense(42, request)).thenReturn(expected);
+
+		var principal = new UserPrincipal(42, "user1");
+		CarExpense result = carController.addExpense(principal, request);
+
+		Assertions.assertThat(result).isEqualTo(expected);
+		verify(carService).addExpense(42, request);
+	}
+
+	@Test
+	void findAllExpenses_shouldReturnExpensesForCurrentUser() {
+		when(currentUserService.getCurrentUserId()).thenReturn(42);
+		List<CarExpense> expected = List.of(CarExpense.builder().id(10).description("Fuel").build());
+		when(carService.findAllExpenses(42)).thenReturn(expected);
+
+		Assertions.assertThat(carController.findAllExpenses()).isEqualTo(expected);
+		verify(carService).findAllExpenses(42);
 	}
 
 	@Test

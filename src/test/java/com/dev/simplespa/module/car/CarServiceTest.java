@@ -93,7 +93,7 @@ class CarServiceTest {
 
 	@Test
 	void addExpense_shouldCreateExpense() {
-		var car = Car.builder().id(1).build();
+		var car = Car.builder().id(1).user(User.builder().id(42).build()).build();
 		var station = CarServiceStation.builder().id(2).name("Shell").type(ServiceStationType.GAS_STATION).build();
 		var request = CarExpenseCreationRequest.builder()
 			.carId(1)
@@ -113,7 +113,7 @@ class CarServiceTest {
 		when(carServiceStationDao.findById(2)).thenReturn(Optional.of(station));
 		when(carExpenseDao.create(any(CarExpense.class))).thenReturn(createdExpense);
 
-		CarExpense result = carService.addExpense(request);
+		CarExpense result = carService.addExpense(42, request);
 
 		assertThat(result).isEqualTo(createdExpense);
 		verify(carExpenseDao).create(any(CarExpense.class));
@@ -121,7 +121,7 @@ class CarServiceTest {
 
 	@Test
 	void addExpense_shouldCreateFuelEventWhenPresent() {
-		var car = Car.builder().id(1).build();
+		var car = Car.builder().id(1).user(User.builder().id(42).build()).build();
 		var station = CarServiceStation.builder().id(2).build();
 		var fuelEvent = CarFuelEvent.builder()
 			.refillAmountInLiter(40)
@@ -147,7 +147,7 @@ class CarServiceTest {
 		when(carExpenseDao.create(any(CarExpense.class))).thenReturn(createdExpense);
 		when(carFuelEventDao.create(any(CarFuelEvent.class))).thenReturn(createdFuelEvent);
 
-		carService.addExpense(request);
+		carService.addExpense(42, request);
 
 		verify(carFuelEventDao).create(any(CarFuelEvent.class));
 	}
@@ -166,14 +166,34 @@ class CarServiceTest {
 
 		when(carDao.findById(99)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> carService.addExpense(request))
+		assertThatThrownBy(() -> carService.addExpense(42, request))
+			.isInstanceOf(RuntimeException.class)
+			.hasMessageContaining("Car not found");
+	}
+
+	@Test
+	void addExpense_shouldThrowWhenCarBelongsToAnotherUser() {
+		var car = Car.builder().id(1).user(User.builder().id(99).build()).build();
+		var request = CarExpenseCreationRequest.builder()
+			.carId(1)
+			.type(CarExpenseType.FUEL)
+			.numberOfDays(0)
+			.description("Fuel")
+			.amountInUsd(50)
+			.serviceStationId(2)
+			.dateHappened(LocalDate.of(2024, JUNE, 1))
+			.build();
+
+		when(carDao.findById(1)).thenReturn(Optional.of(car));
+
+		assertThatThrownBy(() -> carService.addExpense(42, request))
 			.isInstanceOf(RuntimeException.class)
 			.hasMessageContaining("Car not found");
 	}
 
 	@Test
 	void addExpense_shouldThrowWhenServiceStationNotFound() {
-		var car = Car.builder().id(1).build();
+		var car = Car.builder().id(1).user(User.builder().id(42).build()).build();
 		var request = CarExpenseCreationRequest.builder()
 			.carId(1)
 			.type(CarExpenseType.FUEL)
@@ -187,9 +207,24 @@ class CarServiceTest {
 		when(carDao.findById(1)).thenReturn(Optional.of(car));
 		when(carServiceStationDao.findById(99)).thenReturn(Optional.empty());
 
-		assertThatThrownBy(() -> carService.addExpense(request))
+		assertThatThrownBy(() -> carService.addExpense(42, request))
 			.isInstanceOf(RuntimeException.class)
 			.hasMessageContaining("Service station not found");
+	}
+
+	@Test
+	void findAllExpenses_shouldReturnExpensesForUserCarsOnly() {
+		var userCar = Car.builder().id(1).user(User.builder().id(42).build()).build();
+		var otherCar = Car.builder().id(2).user(User.builder().id(99).build()).build();
+		var userExpense = CarExpense.builder().car(userCar).description("mine").build();
+		var otherExpense = CarExpense.builder().car(otherCar).description("other").build();
+
+		when(carDao.findAll()).thenReturn(List.of(userCar, otherCar));
+		when(carExpenseDao.findAll()).thenReturn(List.of(userExpense, otherExpense));
+
+		List<CarExpense> result = carService.findAllExpenses(42);
+
+		assertThat(result).containsExactly(userExpense);
 	}
 
 	@Test

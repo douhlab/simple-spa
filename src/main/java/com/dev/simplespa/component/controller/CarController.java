@@ -4,8 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.CarCreationRequest;
+import com.dev.simplespa.component.controller.dto.CarExpenseCreationRequest;
 import com.dev.simplespa.component.controller.dto.UserPrincipal;
 import com.dev.simplespa.model.domain.car.Car;
+import com.dev.simplespa.model.domain.car.CarExpense;
 import com.dev.simplespa.module.car.CarService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
@@ -34,6 +36,18 @@ public class CarController {
 		@RequestBody @Valid CarCreationRequest carCreationRequest) {
 
 		return carService.add(currentUser.getId(), carCreationRequest);
+	}
+
+	@PostMapping("/v1/api/car/expenses")
+	@ResponseStatus(value = HttpStatus.CREATED)
+	public CarExpense addExpense(@AuthenticationPrincipal UserPrincipal currentUser,
+		@RequestBody @Valid CarExpenseCreationRequest request) {
+		return carService.addExpense(currentUser.getId(), request);
+	}
+
+	@GetMapping("/v1/api/car/expenses/all")
+	public List<CarExpense> findAllExpenses() {
+		return carService.findAllExpenses(currentUserService.getCurrentUserId());
 	}
 
 	@GetMapping("/v1/api/car/all")
