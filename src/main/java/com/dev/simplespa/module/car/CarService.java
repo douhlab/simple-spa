@@ -69,13 +69,11 @@ public class CarService {
 
 		var expense =  carExpenseDao.create(expenseToCreate);
 
-		Optional.ofNullable(request.getFuelEvent()).map(event -> {
+		return Optional.ofNullable(request.getFuelEvent()).map(event -> {
 			var fuelEventToCreate = event.toBuilder().carExpenseId(expense.getId()).build();
 			var fuelEvent = carFuelEventDao.create(fuelEventToCreate);
 			return expense.toBuilder().fuelEvent(Optional.of(fuelEvent)).build();
-		});
-
-		return expense;
+		}).orElse(expense);
 	}
 
 	public List<CarExpense> findExpensesByCarId(int carId) {
