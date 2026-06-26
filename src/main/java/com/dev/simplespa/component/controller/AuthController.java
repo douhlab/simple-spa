@@ -4,10 +4,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.LoginResponse;
-import com.dev.simplespa.component.controller.util.JwtUtil;
 import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.module.RecaptchaService;
+import com.dev.simplespa.module.auth.LoginService;
 import com.dev.simplespa.module.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "/${application.product}")
@@ -24,36 +24,13 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 public class AuthController {
 
-	private final JwtUtil jwtUtil;
+	private final LoginService loginService;
 	private final RecaptchaService recaptchaService;
 	private final UserService userService;
 
 	@PostMapping("/login")
-	public LoginResponse login(@RequestBody Map<String, String> body) {
-
-		boolean bypassReCAPTCHA =
-			Optional.ofNullable(body.get("bypassReCAPTCHA")).map(Boolean::parseBoolean).orElse(false);
-		if (!bypassReCAPTCHA) {
-			// 1️⃣ Verify reCAPTCHA
-			boolean captchaOk = recaptchaService.verify(body.get("captchaToken"));
-			log.info("Authentication - captchaCheckResult: {}", captchaOk);
-			if (!captchaOk) {
-				throw new ResponseStatusException(HttpStatus.FORBIDDEN, "reCAPTCHA failed");
-			}
-		}
-
-		String username = body.get("username");
-		String rawPassword = body.get("password");
-
-		if (userService.isAuthentic(username, rawPassword)) {
-			var user = userService.findByUsername(username)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED,
-					"Problem fetching user details"));
-			String token = jwtUtil.generateToken(username, user.getId());
-			return LoginResponse.builder().token(token).user(user).build();
-		} else {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-		}
+	public LoginResponse login(@RequestBody Map<String, String> body, HttpServletRequest request) {
+		return loginService.login(body, request.getRemoteAddr(), request.getHeader("User-Agent"));
 	}
 
 	@PostMapping("/register")

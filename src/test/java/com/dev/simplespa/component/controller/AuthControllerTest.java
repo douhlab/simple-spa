@@ -1,5 +1,7 @@
 package com.dev.simplespa.component.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -10,19 +12,21 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.Map;
 import java.util.Optional;
 
-import com.dev.simplespa.component.controller.util.JwtUtil;
+import com.dev.simplespa.component.controller.dto.LoginResponse;
 import com.dev.simplespa.component.controller.dto.RegistrationRequest;
 import com.dev.simplespa.model.domain.User;
 import com.dev.simplespa.module.RecaptchaService;
+import com.dev.simplespa.module.auth.LoginService;
 import com.dev.simplespa.module.user.UserService;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.databind.ObjectMapper;
 
 
@@ -34,7 +38,7 @@ class AuthControllerTest {
 	private MockMvc mockMvc;
 
 	@MockitoBean
-	private JwtUtil jwtUtil;
+	private LoginService loginService;
 
 	@MockitoBean
 	private RecaptchaService recaptchaService;
@@ -47,11 +51,10 @@ class AuthControllerTest {
 
 	private final String BASE_URL = "/simple-spa";
 
-	// ---------------- LOGIN ----------------
-
 	@Test
 	void shouldLoginSuccessfully() throws Exception {
 		var user = User.builder().id(1).username("user1").build();
+		var loginResponse = LoginResponse.builder().token("jwt-token").user(user).build();
 
 		Map<String, String> body = Map.of(
 			"username", "user1",
@@ -59,10 +62,7 @@ class AuthControllerTest {
 			"captchaToken", "valid-token"
 		);
 
-		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
-		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
-		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
-		Mockito.when(jwtUtil.generateToken("user1", 1)).thenReturn("jwt-token");
+		when(loginService.login(eq(body), any(), any())).thenReturn(loginResponse);
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
@@ -73,7 +73,6 @@ class AuthControllerTest {
 			.andExpect(jsonPath("$.user.username").value("user1"));
 	}
 
-	// ❌ 2. CAPTCHA FAILURE
 	@Test
 	void shouldReturn403_whenCaptchaFails() throws Exception {
 		Map<String, String> body = Map.of(
@@ -82,7 +81,8 @@ class AuthControllerTest {
 			"captchaToken", "bad-token"
 		);
 
-		Mockito.when(recaptchaService.verify("bad-token")).thenReturn(false);
+		when(loginService.login(eq(body), any(), any()))
+			.thenThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "reCAPTCHA failed"));
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
@@ -92,7 +92,6 @@ class AuthControllerTest {
 			.andExpect(status().reason("reCAPTCHA failed"));
 	}
 
-	// ❌ 3. INVALID CREDENTIALS
 	@Test
 	void shouldReturn401_whenInvalidCredentials() throws Exception {
 		Map<String, String> body = Map.of(
@@ -101,8 +100,8 @@ class AuthControllerTest {
 			"captchaToken", "valid-token"
 		);
 
-		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
-		Mockito.when(userService.isAuthentic("user1", "wrong")).thenReturn(false);
+		when(loginService.login(eq(body), any(), any()))
+			.thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
@@ -112,7 +111,6 @@ class AuthControllerTest {
 			.andExpect(status().reason("Invalid credentials"));
 	}
 
-	// ❌ 4. USER NOT FOUND
 	@Test
 	void shouldReturn401_whenUserNotFound() throws Exception {
 		Map<String, String> body = Map.of(
@@ -121,22 +119,21 @@ class AuthControllerTest {
 			"captchaToken", "valid-token"
 		);
 
-		Mockito.when(recaptchaService.verify("valid-token")).thenReturn(true);
-		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
-		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.empty());
+		when(loginService.login(eq(body), any(), any()))
+			.thenThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials"));
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(body)))
 			.andExpect(status().isUnauthorized())
-			.andExpect(status().reason("Problem fetching user details"));
+			.andExpect(status().reason("Invalid credentials"));
 	}
 
-	// ✅ 5. BYPASS CAPTCHA
 	@Test
 	void shouldBypassCaptcha_whenFlagIsTrue() throws Exception {
 		var user = User.builder().id(1).username("user1").build();
+		var loginResponse = LoginResponse.builder().token("jwt-token").user(user).build();
 
 		Map<String, String> body = Map.of(
 			"username", "user1",
@@ -144,9 +141,7 @@ class AuthControllerTest {
 			"bypassReCAPTCHA", "true"
 		);
 
-		Mockito.when(userService.isAuthentic("user1", "pass")).thenReturn(true);
-		Mockito.when(userService.findByUsername("user1")).thenReturn(Optional.of(user));
-		Mockito.when(jwtUtil.generateToken("user1", 1)).thenReturn("jwt-token");
+		when(loginService.login(eq(body), any(), any())).thenReturn(loginResponse);
 
 		mockMvc.perform(post(BASE_URL + "/login")
 				.with(csrf())
@@ -154,11 +149,7 @@ class AuthControllerTest {
 				.content(objectMapper.writeValueAsString(body)))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$.token").value("jwt-token"));
-
-		Mockito.verify(recaptchaService, Mockito.never()).verify(Mockito.any());
 	}
-
-	// ---------------- REGISTER ----------------
 
 	@Test
 	void register_shouldCreateUser_whenValidRequest() throws Exception {
