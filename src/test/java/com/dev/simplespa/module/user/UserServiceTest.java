@@ -137,4 +137,37 @@ class UserServiceTest {
 
 		assertThat(result).isFalse();
 	}
+
+	@Test
+	void authenticate_shouldReturnSuccessWhenPasswordMatches() {
+		User user = User.builder()
+			.username("user1")
+			.passwordHash("hashed")
+			.build();
+
+		when(userDao.findAll()).thenReturn(List.of(user));
+		when(passwordEncoder.matches("raw", "hashed")).thenReturn(true);
+
+		assertThat(userService.authenticate("user1", "raw")).isEqualTo(AuthResult.SUCCESS);
+	}
+
+	@Test
+	void authenticate_shouldReturnInvalidPasswordWhenPasswordDoesNotMatch() {
+		User user = User.builder()
+			.username("user1")
+			.passwordHash("hashed")
+			.build();
+
+		when(userDao.findAll()).thenReturn(List.of(user));
+		when(passwordEncoder.matches("wrong", "hashed")).thenReturn(false);
+
+		assertThat(userService.authenticate("user1", "wrong")).isEqualTo(AuthResult.INVALID_PASSWORD);
+	}
+
+	@Test
+	void authenticate_shouldReturnUserNotFoundWhenUserDoesNotExist() {
+		when(userDao.findAll()).thenReturn(List.of());
+
+		assertThat(userService.authenticate("unknown", "pass")).isEqualTo(AuthResult.USER_NOT_FOUND);
+	}
 }

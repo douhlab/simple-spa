@@ -45,18 +45,21 @@ public class UserService {
 	}
 
 	public boolean isAuthentic(String username, String rawPassword) {
-		return findAll().stream()
-			.filter(user -> user.getUsername().equals(username))
-			.findFirst()
+		return authenticate(username, rawPassword) == AuthResult.SUCCESS;
+	}
+
+	public AuthResult authenticate(String username, String rawPassword) {
+		return findByUsername(username)
 			.map(user -> {
 				if (!passwordEncoder.matches(rawPassword, user.getPasswordHash())) {
 					log.error("Invalid password for user: {}", username);
-					return false;
+					return AuthResult.INVALID_PASSWORD;
 				}
-				return true;
-			}).orElseGet(() -> {
+				return AuthResult.SUCCESS;
+			})
+			.orElseGet(() -> {
 				log.error("User not found with username: {}", username);
-				return false;
+				return AuthResult.USER_NOT_FOUND;
 			});
 	}
 }
