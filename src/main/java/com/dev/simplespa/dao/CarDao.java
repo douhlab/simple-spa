@@ -33,7 +33,7 @@ public class CarDao {
 			.addValue("userId", car.getUser().getId())
 			.addValue("name", car.getName())
 			.addValue("model", car.getModel())
-			.addValue("modelYear", car.getModel())
+			.addValue("modelYear", car.getModelYear())
 			.addValue("ownedDate", car.getOwnedDate())
 			.addValue("odometerWhenOwned", car.getOdometerWhenOwned())
 			.addValue("priceInUsdWhenOwned", car.getPriceInUsdWhenOwned())
@@ -56,7 +56,7 @@ public class CarDao {
 	}
 
 	public List<Car> findAll() {
-		String sql = "SELECT USER_ID, NAME, MODEL, MODEL_YEAR, OWNED_DATE, ODOMETER_WHEN_OWNED,"
+		String sql = "SELECT ID, USER_ID, NAME, MODEL, MODEL_YEAR, OWNED_DATE, ODOMETER_WHEN_OWNED,"
 			+ "PRICE_IN_USD_WHEN_OWNED, NOTE, CREATION_DATE, CREATED_BY FROM CAR";
 
 		return jdbcTemplate.query(sql, new CarRowMapper()).stream().toList();
@@ -65,7 +65,7 @@ public class CarDao {
 	public Optional<Car> findById(int id) {
 		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
 
-		String sql = "SELECT USER_ID, NAME, MODEL, MODEL_YEAR, OWNED_DATE, ODOMETER_WHEN_OWNED,"
+		String sql = "SELECT ID, USER_ID, NAME, MODEL, MODEL_YEAR, OWNED_DATE, ODOMETER_WHEN_OWNED,"
 			+ "PRICE_IN_USD_WHEN_OWNED, NOTE, CREATION_DATE, CREATED_BY FROM CAR WHERE ID = :id";
 
 		return jdbcTemplate.query(sql, parameters, new CarRowMapper()).stream().findFirst();
