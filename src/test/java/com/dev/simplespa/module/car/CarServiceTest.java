@@ -14,6 +14,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.CarCreationRequest;
 import com.dev.simplespa.component.controller.dto.CarExpenseCreationRequest;
+import com.dev.simplespa.component.controller.dto.CarFuelEventCreationRequest;
 import com.dev.simplespa.dao.CarDao;
 import com.dev.simplespa.dao.CarExpenseDao;
 import com.dev.simplespa.dao.CarFuelEventDao;
@@ -123,7 +124,7 @@ class CarServiceTest {
 	void addExpense_shouldCreateFuelEventWhenPresent() {
 		var car = Car.builder().id(1).user(User.builder().id(42).build()).build();
 		var station = CarServiceStation.builder().id(2).build();
-		var fuelEvent = CarFuelEvent.builder()
+		var fuelEvent = CarFuelEventCreationRequest.builder()
 			.refillAmountInLiter(40)
 			.mileageTraversed(500)
 			.fuelType(FuelType.GASOLINE_95)

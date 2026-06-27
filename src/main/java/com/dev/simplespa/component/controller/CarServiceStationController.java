@@ -16,7 +16,7 @@ public class CarServiceStationController {
 
 	private final CarServiceStationService carServiceStationService;
 
-	@GetMapping("/v1/api/service-stations/all")
+	@GetMapping("/v1/api/car/service-stations/all")
 	public List<CarServiceStation> findAll() {
 		return carServiceStationService.findAll();
 	}

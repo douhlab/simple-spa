@@ -117,7 +117,7 @@ class CarServiceStationDaoTest {
 		when(rs.getInt("ID")).thenReturn(42);
 		when(rs.getString("NAME")).thenReturn("Shell Station");
 		when(rs.getString("LOCATION")).thenReturn("Beirut");
-		when(rs.getInt("TYPE")).thenReturn(ServiceStationType.GAS_STATION.getCode());
+		when(rs.getInt("TYPE_CODE")).thenReturn(ServiceStationType.GAS_STATION.getCode());
 		when(rs.getString("NOTE")).thenReturn("24/7");
 
 		CarServiceStation result = new CarServiceStationDao.CarServiceStationRowMapper().mapRow(rs, 0);

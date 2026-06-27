@@ -58,7 +58,7 @@ public class CarExpenseDao {
 	}
 
 	public List<CarExpense> findAll() {
-		String sql = "SELECT CAR_ID, TYPE_CODE, DESCRIPTION, AMOUNT_IN_USD, SERVICE_STATION_ID, MAIN_ODOMETER, "
+		String sql = "SELECT ID, CAR_ID, TYPE_CODE, DESCRIPTION, AMOUNT_IN_USD, SERVICE_STATION_ID, MAIN_ODOMETER, "
 			+ "DATE_HAPPENED, NOTE, CREATION_DATE, CREATED_BY FROM CAR_EXPENSE";
 
 		return jdbcTemplate.query(sql, new CarExpenseRowMapper()).stream().toList();
@@ -66,7 +66,7 @@ public class CarExpenseDao {
 
 	public Optional<CarExpense> findById(int id) {
 		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
-		String sql = "SELECT CAR_ID, TYPE_CODE, DESCRIPTION, AMOUNT_IN_USD, SERVICE_STATION_ID, MAIN_ODOMETER, "
+		String sql = "SELECT ID, CAR_ID, TYPE_CODE, DESCRIPTION, AMOUNT_IN_USD, SERVICE_STATION_ID, MAIN_ODOMETER, "
 			+ "DATE_HAPPENED, NOTE, CREATION_DATE, CREATED_BY FROM CAR_EXPENSE WHERE ID = :id";
 
 		return jdbcTemplate.query(sql, parameters, new CarExpenseRowMapper()).stream().findFirst();

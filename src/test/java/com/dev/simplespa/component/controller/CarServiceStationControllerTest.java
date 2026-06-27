@@ -41,7 +41,7 @@ class CarServiceStationControllerTest {
 		);
 		when(carServiceStationService.findAll()).thenReturn(stations);
 
-		mockMvc.perform(get("/simple-spa/v1/api/service-stations/all"))
+		mockMvc.perform(get("/simple-spa/v1/api/car/service-stations/all"))
 			.andExpect(status().isOk())
 			.andExpect(jsonPath("$[0].id").value(1))
 			.andExpect(jsonPath("$[0].name").value("Shell"))
