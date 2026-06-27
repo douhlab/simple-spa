@@ -3,10 +3,8 @@ package com.dev.simplespa.component.controller.dto;
 import java.time.LocalDate;
 
 import com.dev.simplespa.model.domain.car.CarExpenseType;
-import com.dev.simplespa.model.domain.car.CarFuelEvent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +36,5 @@ public class CarExpenseCreationRequest {
     private LocalDate dateHappened;
     private String note;
 
-    @Null
-    private CarFuelEvent fuelEvent;
+    private CarFuelEventCreationRequest fuelEvent;
 }

@@ -1,6 +1,5 @@
 package com.dev.simplespa.dao;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,15 +24,15 @@ public class CarServiceStationDao {
 
 	public CarServiceStation create(CarServiceStation carServiceStation) {
 		KeyHolder keyHolder = new GeneratedKeyHolder();
-		var now = LocalDateTime.now();
 
 		SqlParameterSource parameters = new MapSqlParameterSource()
 			.addValue("name", carServiceStation.getName())
 			.addValue("location", carServiceStation.getLocation())
-			.addValue("type", carServiceStation.getType().getCode())
+			.addValue("typeCode", carServiceStation.getType().getCode())
 			.addValue("note", carServiceStation.getNote());
 
-		String sql = "INSERT INTO CAR_SERVICE_STATION (NAME, LOCATION, TYPE, NOTE) VALUES (:name, :location, :type, :note)";
+		String sql =
+			"INSERT INTO CAR_SERVICE_STATION (NAME, LOCATION, TYPE_CODE, NOTE) VALUES (:name, :location, :typeCode, :note)";
 
 		jdbcTemplate.update(sql, parameters, keyHolder);
 
@@ -46,14 +45,14 @@ public class CarServiceStationDao {
 	}
 
 	public List<CarServiceStation> findAll() {
-		String sql = "SELECT ID, NAME, LOCATION, TYPE, NOTE FROM CAR_SERVICE_STATION";
+		String sql = "SELECT ID, NAME, LOCATION, TYPE_CODE, NOTE FROM CAR_SERVICE_STATION";
 
 		return jdbcTemplate.query(sql, new CarServiceStationRowMapper()).stream().toList();
 	}
 
 	public Optional<CarServiceStation> findById(int id) {
 		SqlParameterSource parameters = new MapSqlParameterSource("id", id);
-		String sql = "SELECT ID, NAME, LOCATION, TYPE, NOTE FROM CAR_SERVICE_STATION WHERE ID = :id";
+		String sql = "SELECT ID, NAME, LOCATION, TYPE_CODE, NOTE FROM CAR_SERVICE_STATION WHERE ID = :id";
 
 		return jdbcTemplate.query(sql, parameters, new CarServiceStationRowMapper()).stream().findFirst();
 	}
@@ -65,7 +64,7 @@ public class CarServiceStationDao {
 				.id(rs.getInt("ID"))
 				.name(rs.getString("NAME"))
 				.location(rs.getString("LOCATION"))
-				.type(ServiceStationType.fromCode(rs.getInt("TYPE")))
+				.type(ServiceStationType.fromCode(rs.getInt("TYPE_CODE")))
 				.note(rs.getString("NOTE"))
 				.build();
 		}

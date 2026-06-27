@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.dev.simplespa.component.controller.dto.CarCreationRequest;
 import com.dev.simplespa.component.controller.dto.CarExpenseCreationRequest;
+import com.dev.simplespa.component.controller.dto.CarFuelEventCreationRequest;
 import com.dev.simplespa.dao.CarDao;
 import com.dev.simplespa.dao.CarExpenseDao;
 import com.dev.simplespa.dao.CarFuelEventDao;
@@ -12,6 +13,7 @@ import com.dev.simplespa.dao.CarServiceStationDao;
 import com.dev.simplespa.model.domain.User;
 import com.dev.simplespa.model.domain.car.Car;
 import com.dev.simplespa.model.domain.car.CarExpense;
+import com.dev.simplespa.model.domain.car.CarFuelEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -69,11 +71,23 @@ public class CarService {
 
 		var expense =  carExpenseDao.create(expenseToCreate);
 
-		return Optional.ofNullable(request.getFuelEvent()).map(event -> {
-			var fuelEventToCreate = event.toBuilder().carExpenseId(expense.getId()).build();
-			var fuelEvent = carFuelEventDao.create(fuelEventToCreate);
-			return expense.toBuilder().fuelEvent(Optional.of(fuelEvent)).build();
-		}).orElse(expense);
+		return Optional.ofNullable(request.getFuelEvent())
+			.filter(this::hasFuelEventData)
+			.map(event -> {
+				var fuelEventToCreate = CarFuelEvent.builder()
+					.carExpenseId(expense.getId())
+					.refillAmountInLiter(event.getRefillAmountInLiter())
+					.mileageTraversed(event.getMileageTraversed())
+					.fuelType(event.getFuelType())
+					.build();
+				var fuelEvent = carFuelEventDao.create(fuelEventToCreate);
+				return expense.toBuilder().fuelEvent(Optional.of(fuelEvent)).build();
+			})
+			.orElse(expense);
+	}
+
+	private boolean hasFuelEventData(CarFuelEventCreationRequest fuelEvent) {
+		return fuelEvent.getFuelType() != null;
 	}
 
 	public List<CarExpense> findExpensesByCarId(int carId) {
