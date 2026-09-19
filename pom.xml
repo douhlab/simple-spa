@@ -34,7 +34,7 @@
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
 
         <sonar.organization>douhlab</sonar.organization>
-        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
 
         <!-- main section -->
         <apache-velocity-engine.version>2.4.1</apache-velocity-engine.version>
