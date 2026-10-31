@@ -42,7 +42,7 @@
         <jjwt.version>0.13.0</jjwt.version>
         <mailgun.version>2.4.2</mailgun.version>
         <mssql-jdbc.version>12.10.2.jre11</mssql-jdbc.version>
-        <springdoc-openapi.version>3.1.1</springdoc-openapi.version>
+        <springdoc-openapi.version>3.2.0</springdoc-openapi.version>
 
         <!-- testing section -->
         <wiremock.version>3.13.2</wiremock.version>
